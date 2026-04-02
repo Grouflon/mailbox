@@ -3,9 +3,10 @@
 [ext_resource type="Script" uid="uid://d1kt8ub0i0o77" path="res://scripts/game.gd" id="1_h2yge"]
 [ext_resource type="Texture2D" uid="uid://d425jtgsu8dh" path="res://icon.svg" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://bbmprkitxe65s" path="res://scripts/revolution.gd" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cn06qe6p6mnbo" path="res://scenes/box.tscn" id="4_7mycd"]
 [ext_resource type="Theme" uid="uid://ci68qf23fewv5" path="res://ui_theme.tres" id="4_lquwl"]
 
-[node name="main" type="Node3D" unique_id=7951666 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "text", "delay_label", "delay_slider")]
+[node name="main" type="Node3D" unique_id=7951666 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "text", "delay_label", "delay_slider", "box", "camera")]
 script = ExtResource("1_h2yge")
 notification_button = NodePath("ui/notification_button")
 permissions_button = NodePath("ui/permissions_button")
@@ -14,13 +15,22 @@ hello_world_button = NodePath("ui/hello_world")
 text = NodePath("ui/log")
 delay_label = NodePath("ui/delay_widget/Label")
 delay_slider = NodePath("ui/delay_widget/HSlider")
+box = NodePath("box")
+camera = NodePath("Camera3D")
 
 [node name="Sprite3D" type="Sprite3D" parent="." unique_id=1885256345]
+visible = false
 texture = ExtResource("1_ig7tw")
 script = ExtResource("2_0xm2m")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=507978905]
-transform = Transform3D(1, 0, 0, 0, 0.8983191, 0.43934348, 0, -0.43934348, 0.8983191, 0, 1.0920415, 1.8384804)
+transform = Transform3D(1, 0, 0, 0, 0.72429216, 0.6894932, 0, -0.6894932, 0.72429216, 0, 1.8360686, 1.637107)
+
+[node name="box" parent="." unique_id=226211958 instance=ExtResource("4_7mycd")]
+transform = Transform3D(0.30367237, 0, 0.17402036, 0, 0.35, 0, -0.17402036, 0, 0.30367237, 0, 0, 0)
+
+[node name="light" type="DirectionalLight3D" parent="." unique_id=982340471]
+transform = Transform3D(0.90571684, -0.21764983, 0.36373836, 0, 0.8581097, 0.5134664, -0.4238833, -0.46505517, 0.7772044, 0.82627654, 1.0447959, 0.7193122)
 
 [node name="ui" type="Control" parent="." unique_id=1108586680]
 layout_mode = 3
