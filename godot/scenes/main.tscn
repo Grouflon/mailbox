@@ -1,32 +1,43 @@
 [gd_scene format=3 uid="uid://njpsx7g0twiw"]
 
-[ext_resource type="Script" uid="uid://d1kt8ub0i0o77" path="res://scripts/game.gd" id="1_h2yge"]
-[ext_resource type="Texture2D" uid="uid://d425jtgsu8dh" path="res://icon.svg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://bbmprkitxe65s" path="res://scripts/revolution.gd" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://cn06qe6p6mnbo" path="res://scenes/box.tscn" id="4_7mycd"]
-[ext_resource type="Theme" uid="uid://ci68qf23fewv5" path="res://ui_theme.tres" id="4_lquwl"]
+[ext_resource type="Script" uid="uid://d1kt8ub0i0o77" path="res://scripts/game.gd" id="1_tbgi4"]
+[ext_resource type="Texture2D" uid="uid://d425jtgsu8dh" path="res://icon.svg" id="2_tefeu"]
+[ext_resource type="PackedScene" uid="uid://cn06qe6p6mnbo" path="res://scenes/box.tscn" id="4_tipki"]
+[ext_resource type="Theme" uid="uid://ci68qf23fewv5" path="res://ui_theme.tres" id="5_85g3d"]
+[ext_resource type="Script" uid="uid://g83xh0xmdtxo" path="res://scripts/game_input.gd" id="6_tefeu"]
 
-[node name="main" type="Node3D" unique_id=7951666 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "text", "delay_label", "delay_slider", "box", "camera")]
-script = ExtResource("1_h2yge")
-notification_button = NodePath("ui/notification_button")
-permissions_button = NodePath("ui/permissions_button")
-app_page_button = NodePath("ui/app_page")
-hello_world_button = NodePath("ui/hello_world")
-text = NodePath("ui/log")
-delay_label = NodePath("ui/delay_widget/Label")
-delay_slider = NodePath("ui/delay_widget/HSlider")
-box = NodePath("box")
-camera = NodePath("Camera3D")
+[node name="main" type="Node3D" unique_id=7951666]
+
+[node name="input" type="Node" parent="." unique_id=1314666973]
+script = ExtResource("6_tefeu")
+metadata/_custom_type_script = "uid://g83xh0xmdtxo"
+
+[node name="game" type="Node3D" parent="." unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "text", "delay_label", "delay_slider", "box", "camera", "input")]
+script = ExtResource("1_tbgi4")
+notification_button = NodePath("../ui/notification_button")
+permissions_button = NodePath("../ui/permissions_button")
+app_page_button = NodePath("../ui/app_page")
+hello_world_button = NodePath("../ui/hello_world")
+text = NodePath("../ui/log")
+delay_label = NodePath("../ui/delay_widget/Label")
+delay_slider = NodePath("../ui/delay_widget/HSlider")
+box = NodePath("../box")
+camera = NodePath("../Camera3D")
+input = NodePath("../input")
+drag_speed = Vector2(0.003, 0.003)
+drag_smooth = 0.15
 
 [node name="Sprite3D" type="Sprite3D" parent="." unique_id=1885256345]
+transform = Transform3D(2.3123238, 0, 0, 0, -1.0107488e-07, 2.3123238, 0, -2.3123238, -1.0107488e-07, 0, 0, 0)
 visible = false
-texture = ExtResource("1_ig7tw")
-script = ExtResource("2_0xm2m")
+texture = ExtResource("2_tefeu")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=507978905]
-transform = Transform3D(1, 0, 0, 0, 0.72429216, 0.6894932, 0, -0.6894932, 0.72429216, 0, 1.8360686, 1.637107)
+transform = Transform3D(1, 0, 0, 0, 0.6372223, 0.77068007, 0, -0.77068007, 0.6372223, 4.7683716e-07, 3.6610718, 2.723899)
+fov = 51.6
+size = 7.25
 
-[node name="box" parent="." unique_id=226211958 instance=ExtResource("4_7mycd")]
+[node name="box" parent="." unique_id=226211958 instance=ExtResource("4_tipki")]
 transform = Transform3D(0.30367237, 0, 0.17402036, 0, 0.35, 0, -0.17402036, 0, 0.30367237, 0, 0, 0)
 
 [node name="light" type="DirectionalLight3D" parent="." unique_id=982340471]
@@ -46,7 +57,7 @@ offset_left = 24.0
 offset_top = 22.0
 offset_right = 446.0
 offset_bottom = 122.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "SEND NOTIFICATION"
 
 [node name="permissions_button" type="Button" parent="ui" unique_id=1216643286]
@@ -55,7 +66,7 @@ offset_left = 24.0
 offset_top = 143.0
 offset_right = 446.0
 offset_bottom = 243.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "ASK PERMISSIONS"
 
 [node name="app_page" type="Button" parent="ui" unique_id=414506203]
@@ -64,7 +75,7 @@ offset_left = 24.0
 offset_top = 265.0
 offset_right = 446.0
 offset_bottom = 365.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "OPEN APP PAGE"
 
 [node name="hello_world" type="Button" parent="ui" unique_id=235535162]
@@ -73,7 +84,7 @@ offset_left = 24.0
 offset_top = 492.0
 offset_right = 446.0
 offset_bottom = 592.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "HELLO WORLD
 "
 
@@ -102,7 +113,7 @@ offset_left = -1.0
 offset_top = 1.0
 offset_right = 86.0
 offset_bottom = 46.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "Delay: 0"
 
 [node name="log" type="Label" parent="ui" unique_id=1561684694]
@@ -111,5 +122,5 @@ offset_left = 466.0
 offset_top = 33.0
 offset_right = 1124.0
 offset_bottom = 192.0
-theme = ExtResource("4_lquwl")
+theme = ExtResource("5_85g3d")
 text = "INFO"

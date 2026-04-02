@@ -10,13 +10,18 @@ extends Node3D
 @export var delay_slider: HSlider;
 @export var box: Box;
 @export var camera: Camera3D;
+@export var input: GameInput;
+@export var drag_speed: Vector2 = Vector2(1,1);
+@export var drag_smooth: float = 0.05;
+
+var smoothed_drag_input: Vector2
 
 const ANDROID_PLUGIN_NAME: = "MailboxAndroidPlugin"
 
 var android_plugin: Object;
 
-var pending_click: bool
-var pending_click_position: Vector2
+#var pending_click: bool
+#var pending_click_position: Vector2
 
 func _ready() -> void:
 	if Engine.has_singleton(ANDROID_PLUGIN_NAME):
@@ -42,24 +47,69 @@ func _ready() -> void:
 	text.text = "initialiazing"
 	box.set_closed()
 	
-func _input(event: InputEvent) -> void:
-	if event is InputEventScreenTouch:
-		pass
-	elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
-		pass
-	else:
-		return
-	if not event.is_pressed():
-		return
+#func _input(event: InputEvent) -> void:
+	#return
+	#if event is InputEventScreenDrag:
+		#print(event as InputEventScreenDrag)
+		#return
+	#
+	#if event is InputEventScreenTouch:
+		#pass
+	#elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
+		#pass
+	#else:
+		#return
+		#
+	##print("p:", event.position, event.is_pressed(), event.is_released())
+		#
+	#event.is_released()
+	#if not event.is_pressed():
+		#return
+	#
+	#pending_click_position = event.position
+	#pending_click = true
 	
-	pending_click_position = event.position
-	pending_click = true
+func _process(delta: float) -> void:
+	smoothed_drag_input = lerp(smoothed_drag_input, Vector2.ZERO, drag_smooth)
+	if input.is_touch_down:
+		smoothed_drag_input = input.drag_delta
+		
+	var x_axis = camera.get_camera_transform().basis.y
+	var y_axis = camera.get_camera_transform().basis.x
+	box.rotate(x_axis, smoothed_drag_input.x * drag_speed.x)
+	box.rotate(y_axis, smoothed_drag_input.y * drag_speed.y)
+		#box.rotation.z = 0
+		
+		#var box_basis = box.get_global_transform_interpolated().basis
+		#var front_axis = box_basis.z.normalized()
+		#var left_axis = box_basis.x.normalized()
+		#var up_axis = box_basis.y.normalized()
+		#left_axis.y = 0
+		#left_axis = left_axis.normalized()
+		#print(left_axis)
+		#up_axis = front_axis.cross(left_axis)
+		#left_axis = up_axis.cross(front_axis)
+			
+		#DebugDraw3D.draw_line(box.position, box.position + left_axis * 3, Color.RED)
+		#DebugDraw3D.draw_line(box.position, box.position + up_axis * 3, Color.GREEN)
+		#DebugDraw3D.draw_line(box.position, box.position + front_axis * 3, Color.BLUE)
+		#box.quaternion = Quaternion(Basis(left_axis, up_axis, front_axis).orthonormalized())
+		
+		#var box_basis = box.get_global_transform_interpolated().basis
+		#var right_axis = box_basis.x
+		#right_axis.y = 0
+		#right_axis = right_axis.normalized()
+		#var up_axis = box_basis.z.cross(right_axis)
+		#right_axis = up_axis.cross(box_basis.z)
+		
+		
+		
+		#box.quaternion = Quaternion(Basis(right_axis, up_axis, box_basis.x).orthonormalized())
+		#box.look_at(box.position + box.get_global_transform_interpolated().basis.z, Vector3(0,1,0))
 	
-func _physics_process(delta: float) -> void:
-	
-	if pending_click:
-		var ray_origin: = camera.project_ray_origin(pending_click_position)
-		var ray_normal: = camera.project_ray_normal(pending_click_position)
+	if input.is_just_touched:
+		var ray_origin: = camera.project_ray_origin(input.mouse_position)
+		var ray_normal: = camera.project_ray_normal(input.mouse_position)
 		#print("o:", ray_origin, "n:", ray_normal)
 		
 		var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0)
@@ -72,14 +122,13 @@ func _physics_process(delta: float) -> void:
 			
 		var collider = result.get("collider") as Area3D
 		if collider != null: 
-			var box: = collider.get_parent() as Box
-			if box != null:
-				if box.opened:
-					box.close()
+			var hit_box: = collider.get_parent() as Box
+			if hit_box != null:
+				if hit_box.opened:
+					hit_box.close()
 				else:
-					box.open()
+					hit_box.open()
 	
-	pending_click = false
 	pass
 
 func on_notification_button_pressed() -> void:
