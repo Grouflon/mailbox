@@ -12,6 +12,28 @@ var is_touch_down: bool
 var mouse_position: Vector2
 var last_mouse_position: Vector2
 
+#func _input(event: InputEvent) -> void:
+	#return
+	#if event is InputEventScreenDrag:
+		#print(event as InputEventScreenDrag)
+		#return
+	#
+	#if event is InputEventScreenTouch:
+		#pass
+	#elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
+		#pass
+	#else:
+		#return
+		#
+	##print("p:", event.position, event.is_pressed(), event.is_released())
+		#
+	#event.is_released()
+	#if not event.is_pressed():
+		#return
+	#
+	#pending_click_position = event.position
+	#pending_click = true
+
 func _input(event):
 	if event is InputEventScreenTouch:
 		pass

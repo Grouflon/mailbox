@@ -1,27 +1,37 @@
 extends Node3D
 
+# UI
 @export var notification_button: BaseButton;
 @export var permissions_button: BaseButton;
 @export var app_page_button: BaseButton;
 @export var hello_world_button: BaseButton;
+@export var reset_button: BaseButton;
 @export var text: Label;
-
 @export var delay_label: Label;
 @export var delay_slider: HSlider;
+
+@export var world: Node3D
+@export var mailbox: Mailbox;
 @export var box: Box;
 @export var camera: Camera3D;
 @export var input: GameInput;
-@export var drag_speed: Vector2 = Vector2(1,1);
-@export var drag_smooth: float = 0.05;
+@export var object_viewer: ObjectViewer
+@export var parcel_viewing_parent: Node3D
 
-var smoothed_drag_input: Vector2
+# Game state
+enum GameState
+{
+	NONE,
+	MAILBOX,
+	PARCEL,
+	OBJECT,
+}
+var current_state: GameState = GameState.NONE
+var current_object: Node3D;
 
+# Android
 const ANDROID_PLUGIN_NAME: = "MailboxAndroidPlugin"
-
 var android_plugin: Object;
-
-#var pending_click: bool
-#var pending_click_position: Vector2
 
 func _ready() -> void:
 	if Engine.has_singleton(ANDROID_PLUGIN_NAME):
@@ -40,96 +50,116 @@ func _ready() -> void:
 	permissions_button.pressed.connect(on_permissions_button_pressed)
 	app_page_button.pressed.connect(on_app_page_button_pressed)
 	hello_world_button.pressed.connect(on_hello_world_button_pressed)
+	reset_button.pressed.connect(on_reset_button_pressed)
 	
 	update_delay_label()
 	delay_slider.value_changed.connect(on_delay_value_changed)
 	
 	text.text = "initialiazing"
-	box.set_closed()
 	
-#func _input(event: InputEvent) -> void:
-	#return
-	#if event is InputEventScreenDrag:
-		#print(event as InputEventScreenDrag)
-		#return
-	#
-	#if event is InputEventScreenTouch:
-		#pass
-	#elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
-		#pass
-	#else:
-		#return
-		#
-	##print("p:", event.position, event.is_pressed(), event.is_released())
-		#
-	#event.is_released()
-	#if not event.is_pressed():
-		#return
-	#
-	#pending_click_position = event.position
-	#pending_click = true
+	mailbox.visible = false
+	box.visible = false
+	set_state(GameState.MAILBOX)
+	
+func set_state(state: GameState):
+	if state == current_state: return
+	
+	# Exit
+	match current_state:
+		GameState.MAILBOX:
+			mailbox.visible = false
+			box.visible = true
+			
+		GameState.PARCEL:
+			box.visible = false
+			object_viewer.target = null
+			box.set_closed()
+			
+		GameState.OBJECT:
+			# hack until objects are handled generically
+			current_object.reparent(box.content_parent, false)
+			current_object.transform = Transform3D.IDENTITY
+			
+			current_object = null
+			object_viewer.target = null
+	
+	current_state = state
+	
+	# Enter
+	match current_state:
+		GameState.MAILBOX:
+			mailbox.visible = true
+			mailbox.set_closed()
+			
+			box.visible = true
+			box.reparent(mailbox.content_parent, false)
+			box.transform = Transform3D.IDENTITY
+			box.set_closed()
+			
+		GameState.PARCEL:
+			box.visible = true
+			
+			object_viewer.target = box
+			
+			box.reparent(world, false)
+			box.transform = parcel_viewing_parent.transform
+			box.set_closed()
+			
+		GameState.OBJECT:
+			assert(current_object != null)
+			
+			current_object.reparent(world, false)
+			current_object.transform = parcel_viewing_parent.transform
+			
+			object_viewer.target = current_object
+	
+func get_area_under_mouse(collision_mask: int = 0xFFFFFFFF) -> Area3D:
+	var ray_origin: = camera.project_ray_origin(input.mouse_position)
+	var ray_normal: = camera.project_ray_normal(input.mouse_position)
+	var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0, collision_mask)
+	query.collide_with_areas = true
+	var result: = get_world_3d().direct_space_state.intersect_ray(query)
+	return result.get("collider") as Area3D
 	
 func _process(delta: float) -> void:
-	smoothed_drag_input = lerp(smoothed_drag_input, Vector2.ZERO, drag_smooth)
-	if input.is_touch_down:
-		smoothed_drag_input = input.drag_delta
-		
-	var x_axis = camera.get_camera_transform().basis.y
-	var y_axis = camera.get_camera_transform().basis.x
-	box.rotate(x_axis, smoothed_drag_input.x * drag_speed.x)
-	box.rotate(y_axis, smoothed_drag_input.y * drag_speed.y)
-		#box.rotation.z = 0
-		
-		#var box_basis = box.get_global_transform_interpolated().basis
-		#var front_axis = box_basis.z.normalized()
-		#var left_axis = box_basis.x.normalized()
-		#var up_axis = box_basis.y.normalized()
-		#left_axis.y = 0
-		#left_axis = left_axis.normalized()
-		#print(left_axis)
-		#up_axis = front_axis.cross(left_axis)
-		#left_axis = up_axis.cross(front_axis)
-			
-		#DebugDraw3D.draw_line(box.position, box.position + left_axis * 3, Color.RED)
-		#DebugDraw3D.draw_line(box.position, box.position + up_axis * 3, Color.GREEN)
-		#DebugDraw3D.draw_line(box.position, box.position + front_axis * 3, Color.BLUE)
-		#box.quaternion = Quaternion(Basis(left_axis, up_axis, front_axis).orthonormalized())
-		
-		#var box_basis = box.get_global_transform_interpolated().basis
-		#var right_axis = box_basis.x
-		#right_axis.y = 0
-		#right_axis = right_axis.normalized()
-		#var up_axis = box_basis.z.cross(right_axis)
-		#right_axis = up_axis.cross(box_basis.z)
-		
-		
-		
-		#box.quaternion = Quaternion(Basis(right_axis, up_axis, box_basis.x).orthonormalized())
-		#box.look_at(box.position + box.get_global_transform_interpolated().basis.z, Vector3(0,1,0))
 	
-	if input.is_just_touched:
-		var ray_origin: = camera.project_ray_origin(input.mouse_position)
-		var ray_normal: = camera.project_ray_normal(input.mouse_position)
-		#print("o:", ray_origin, "n:", ray_normal)
-		
-		var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0)
-		query.collide_with_areas = true
-		var result: = get_world_3d().direct_space_state.intersect_ray(query)
-		#print("r:", result)
-		#
-		#if result:
-			#print("Hit at point: ", result.position)
-			
-		var collider = result.get("collider") as Area3D
-		if collider != null: 
-			var hit_box: = collider.get_parent() as Box
-			if hit_box != null:
-				if hit_box.opened:
-					hit_box.close()
-				else:
-					hit_box.open()
+	object_viewer.update(delta, input.is_touch_down, input.drag_delta)
 	
-	pass
+	# Update state
+	match current_state:
+		GameState.MAILBOX:
+			if input.is_just_touched:
+				var area = get_area_under_mouse(0b0000_0011) # mailbox + box
+				if area != null: 
+					var hit_box: = Tools.find_parent_by_type(area, "Box") as Box
+					if hit_box != null:
+						set_state(GameState.PARCEL)
+					else:
+						var hit_mailbox: = Tools.find_parent_by_type(area, "Mailbox") as Mailbox
+						if hit_mailbox != null:
+							if hit_mailbox.opened:
+								hit_mailbox.close()
+							else:
+								hit_mailbox.open()
+						
+							
+		GameState.PARCEL:
+			if input.is_just_touched:
+				if box.opened:
+					var object_area = get_area_under_mouse(0b0000_0100)
+					if object_area != null:
+						current_object = object_area.get_parent_node_3d()
+						set_state(GameState.OBJECT)
+						return
+				
+				var box_area = get_area_under_mouse(0b0000_0001)
+				if box_area != null: 
+					var hit_box: = Tools.find_parent_by_type(box_area, "Box") as Box
+					if hit_box != null:
+						if hit_box.opened:
+							hit_box.close()
+						else:
+							hit_box.open()
 
 func on_notification_button_pressed() -> void:
 	android_plugin.test_notifications()
@@ -154,6 +184,9 @@ func update_delay_label():
 func on_hello_world_button_pressed():
 	android_plugin.hello_world()
 	pass
+	
+func on_reset_button_pressed():
+	set_state(GameState.MAILBOX)
 	
 func on_post_notifications_permission_result_received(result: bool):
 	print("Permission: %s" % result)

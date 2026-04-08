@@ -15,6 +15,10 @@ run/main_scene="uid://njpsx7g0twiw"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Tools="*uid://7n2g1i4padsm"
+
 [debug]
 
 gdscript/warnings/unused_variable=0
@@ -48,6 +52,8 @@ touch={
 [layer_names]
 
 3d_physics/layer_1="box"
+3d_physics/layer_2="mailbox"
+3d_physics/layer_3="item"
 
 [physics]
 
@@ -58,3 +64,4 @@ touch={
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.36180028, 0.70620775, 0.87887114, 1)

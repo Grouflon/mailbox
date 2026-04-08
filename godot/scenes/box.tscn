@@ -2,13 +2,15 @@
 
 [ext_resource type="PackedScene" uid="uid://8u840w1ntmvs" path="res://meshes/box/box.glb" id="1_3inec"]
 [ext_resource type="Script" uid="uid://7lautb60xx0d" path="res://scripts/box.gd" id="2_ks2v0"]
+[ext_resource type="PackedScene" uid="uid://bj0a6w6yln2jn" path="res://scenes/gameboy.tscn" id="3_c2ln5"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ks2v0"]
 size = Vector3(2.1660156, 2.538086, 3.008789)
 
-[node name="box" unique_id=226211958 node_paths=PackedStringArray("animation_player") instance=ExtResource("1_3inec")]
+[node name="box" unique_id=226211958 node_paths=PackedStringArray("animation_player", "content_parent") instance=ExtResource("1_3inec")]
 script = ExtResource("2_ks2v0")
 animation_player = NodePath("AnimationPlayer")
+content_parent = NodePath("content_parent")
 
 [node name="area" type="Area3D" parent="." index="0" unique_id=1576720459]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022211075, 0, 0)
@@ -18,8 +20,13 @@ input_ray_pickable = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49475098, 0)
 shape = SubResource("BoxShape3D_ks2v0")
 
-[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(1368123981) index="0" unique_id=1255444012]
-bones/1/rotation = Quaternion(-3.5527099e-15, -3.5527137e-15, -3.1974423e-14, 1)
-bones/2/rotation = Quaternion(1.490116e-07, 4.973799e-14, 3.5527103e-15, 1)
-bones/3/rotation = Quaternion(5.960466e-08, 5.960467e-08, 3.5527145e-15, 1)
-bones/4/rotation = Quaternion(5.960466e-08, -5.9604627e-08, -3.552716e-15, 1)
+[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(424947814) index="0" unique_id=790917083]
+bones/1/rotation = Quaternion(-0.64278764, -3.2464167e-14, -1.5325253e-07, 0.76604444)
+bones/2/rotation = Quaternion(0.6427879, 8.347931e-14, 1.5325254e-07, 0.76604426)
+bones/3/rotation = Quaternion(-1.4590579e-07, 8.3973006e-08, 0.64278775, 0.7660444)
+bones/4/rotation = Quaternion(1.6059923e-07, -8.397295e-08, -0.64278775, 0.7660444)
+
+[node name="content_parent" type="Marker3D" parent="." index="3" unique_id=846267319]
+transform = Transform3D(0.3564026, 0.1815962, 7.937823e-09, 0, -1.7484556e-08, 0.4, 0.1815962, -0.3564026, -1.5578854e-08, 0, -0.54047656, 0)
+
+[node name="gameboy" parent="content_parent" index="0" unique_id=634348738 instance=ExtResource("3_c2ln5")]

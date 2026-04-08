@@ -1,47 +1,63 @@
 [gd_scene format=3 uid="uid://njpsx7g0twiw"]
 
 [ext_resource type="Script" uid="uid://d1kt8ub0i0o77" path="res://scripts/game.gd" id="1_tbgi4"]
-[ext_resource type="Texture2D" uid="uid://d425jtgsu8dh" path="res://icon.svg" id="2_tefeu"]
 [ext_resource type="PackedScene" uid="uid://cn06qe6p6mnbo" path="res://scenes/box.tscn" id="4_tipki"]
 [ext_resource type="Theme" uid="uid://ci68qf23fewv5" path="res://ui_theme.tres" id="5_85g3d"]
+[ext_resource type="PackedScene" uid="uid://b8ssfw6m4wf0j" path="res://scenes/mailbox.tscn" id="6_o6xl0"]
 [ext_resource type="Script" uid="uid://g83xh0xmdtxo" path="res://scripts/game_input.gd" id="6_tefeu"]
+[ext_resource type="Script" uid="uid://dmfbvrxq6u5iw" path="res://scripts/object_viewer.gd" id="7_o6xl0"]
 
 [node name="main" type="Node3D" unique_id=7951666]
 
-[node name="input" type="Node" parent="." unique_id=1314666973]
+[node name="scripts" type="Node" parent="." unique_id=537972198]
+
+[node name="input" type="Node" parent="scripts" unique_id=1314666973]
 script = ExtResource("6_tefeu")
 metadata/_custom_type_script = "uid://g83xh0xmdtxo"
 
-[node name="game" type="Node3D" parent="." unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "text", "delay_label", "delay_slider", "box", "camera", "input")]
-script = ExtResource("1_tbgi4")
-notification_button = NodePath("../ui/notification_button")
-permissions_button = NodePath("../ui/permissions_button")
-app_page_button = NodePath("../ui/app_page")
-hello_world_button = NodePath("../ui/hello_world")
-text = NodePath("../ui/log")
-delay_label = NodePath("../ui/delay_widget/Label")
-delay_slider = NodePath("../ui/delay_widget/HSlider")
-box = NodePath("../box")
-camera = NodePath("../Camera3D")
-input = NodePath("../input")
+[node name="viewer" type="Node" parent="scripts" unique_id=1632554547 node_paths=PackedStringArray("camera")]
+script = ExtResource("7_o6xl0")
+camera = NodePath("../../world/camera")
 drag_speed = Vector2(0.003, 0.003)
 drag_smooth = 0.15
+metadata/_custom_type_script = "uid://dmfbvrxq6u5iw"
 
-[node name="Sprite3D" type="Sprite3D" parent="." unique_id=1885256345]
-transform = Transform3D(2.3123238, 0, 0, 0, -1.0107488e-07, 2.3123238, 0, -2.3123238, -1.0107488e-07, 0, 0, 0)
-visible = false
-texture = ExtResource("2_tefeu")
+[node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "box", "camera", "input", "object_viewer", "parcel_viewing_parent")]
+transform = Transform3D(0.99922216, -0.032813, 0.021871835, 0.03301667, 0.9994142, -0.009016852, -0.021563161, 0.009731951, 0.9997201, 0, 0, 0)
+script = ExtResource("1_tbgi4")
+notification_button = NodePath("../../ui/notification_button")
+permissions_button = NodePath("../../ui/permissions_button")
+app_page_button = NodePath("../../ui/app_page")
+hello_world_button = NodePath("../../ui/hello_world")
+reset_button = NodePath("../../ui/reset")
+text = NodePath("../../ui/log")
+delay_label = NodePath("../../ui/delay_widget/Label")
+delay_slider = NodePath("../../ui/delay_widget/HSlider")
+world = NodePath("../../world")
+mailbox = NodePath("../../world/mailbox")
+box = NodePath("../../world/parcel_viewing/box")
+camera = NodePath("../../world/camera")
+input = NodePath("../input")
+object_viewer = NodePath("../viewer")
+parcel_viewing_parent = NodePath("../../world/parcel_viewing")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=507978905]
-transform = Transform3D(1, 0, 0, 0, 0.6372223, 0.77068007, 0, -0.77068007, 0.6372223, 4.7683716e-07, 3.6610718, 2.723899)
+[node name="world" type="Node3D" parent="." unique_id=1193364249]
+
+[node name="mailbox" parent="world" unique_id=25785074 instance=ExtResource("6_o6xl0")]
+
+[node name="camera" type="Camera3D" parent="world" unique_id=507978905]
+transform = Transform3D(1, 0, 0, 0, 0.99553734, 0.09436891, 0, -0.09436891, 0.99553734, 4.7683716e-07, 0.25618982, 7.909498)
 fov = 51.6
 size = 7.25
 
-[node name="box" parent="." unique_id=226211958 instance=ExtResource("4_tipki")]
-transform = Transform3D(0.30367237, 0, 0.17402036, 0, 0.35, 0, -0.17402036, 0, 0.30367237, 0, 0, 0)
+[node name="light" type="DirectionalLight3D" parent="world" unique_id=982340471]
+transform = Transform3D(0.90571684, -0.21764983, 0.36373836, 0, 0.8581097, 0.5134664, -0.4238833, -0.46505517, 0.7772044, 3.2657259, 1.0447959, 4.043362)
 
-[node name="light" type="DirectionalLight3D" parent="." unique_id=982340471]
-transform = Transform3D(0.90571684, -0.21764983, 0.36373836, 0, 0.8581097, 0.5134664, -0.4238833, -0.46505517, 0.7772044, 0.82627654, 1.0447959, 0.7193122)
+[node name="parcel_viewing" type="Node3D" parent="world" unique_id=2008776012]
+transform = Transform3D(0.47976157, 4.172325e-08, 0.5097341, 0.26582688, 0.59727544, -0.25019622, -0.43493098, 0.36505082, 0.40935677, 0, 0, 0)
+
+[node name="box" parent="world/parcel_viewing" unique_id=226211958 instance=ExtResource("4_tipki")]
+visible = false
 
 [node name="ui" type="Control" parent="." unique_id=1108586680]
 layout_mode = 3
@@ -80,15 +96,25 @@ text = "OPEN APP PAGE"
 
 [node name="hello_world" type="Button" parent="ui" unique_id=235535162]
 layout_mode = 0
-offset_left = 24.0
-offset_top = 492.0
-offset_right = 446.0
-offset_bottom = 592.0
+offset_left = 470.0
+offset_top = 22.0
+offset_right = 892.0
+offset_bottom = 122.0
 theme = ExtResource("5_85g3d")
 text = "HELLO WORLD
 "
 
+[node name="reset" type="Button" parent="ui" unique_id=65483897]
+layout_mode = 0
+offset_left = 470.0
+offset_top = 143.0
+offset_right = 892.0
+offset_bottom = 243.0
+theme = ExtResource("5_85g3d")
+text = "RESET"
+
 [node name="delay_widget" type="Control" parent="ui" unique_id=2053507285]
+visible = false
 anchors_preset = 0
 offset_left = 29.0
 offset_top = 383.0
@@ -117,6 +143,7 @@ theme = ExtResource("5_85g3d")
 text = "Delay: 0"
 
 [node name="log" type="Label" parent="ui" unique_id=1561684694]
+visible = false
 layout_mode = 0
 offset_left = 466.0
 offset_top = 33.0
@@ -124,3 +151,5 @@ offset_right = 1124.0
 offset_bottom = 192.0
 theme = ExtResource("5_85g3d")
 text = "INFO"
+
+[editable path="world/mailbox"]
