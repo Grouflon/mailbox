@@ -113,9 +113,9 @@ func set_state(state: GameState):
 			
 			object_viewer.target = current_object
 	
-func get_area_under_mouse(collision_mask: int = 0xFFFFFFFF) -> Area3D:
-	var ray_origin: = camera.project_ray_origin(input.mouse_position)
-	var ray_normal: = camera.project_ray_normal(input.mouse_position)
+func get_area_under_screen_position(position: Vector2, collision_mask: int = 0xFFFFFFFF) -> Area3D:
+	var ray_origin: = camera.project_ray_origin(position)
+	var ray_normal: = camera.project_ray_normal(position)
 	var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0, collision_mask)
 	query.collide_with_areas = true
 	var result: = get_world_3d().direct_space_state.intersect_ray(query)
@@ -123,13 +123,13 @@ func get_area_under_mouse(collision_mask: int = 0xFFFFFFFF) -> Area3D:
 	
 func _process(delta: float) -> void:
 	
-	object_viewer.update(delta, input.is_touch_down, input.drag_delta)
+	object_viewer.update(delta, input.is_dragging, input.drag_delta)
 	
 	# Update state
 	match current_state:
 		GameState.MAILBOX:
-			if input.is_just_touched:
-				var area = get_area_under_mouse(0b0000_0011) # mailbox + box
+			if input.has_just_tapped:
+				var area = get_area_under_screen_position(input.tap_position, 0b0000_0011) # mailbox + box
 				if area != null: 
 					var hit_box: = Tools.find_parent_by_type(area, "Box") as Box
 					if hit_box != null:
@@ -144,15 +144,15 @@ func _process(delta: float) -> void:
 						
 							
 		GameState.PARCEL:
-			if input.is_just_touched:
+			if input.has_just_tapped:
 				if box.opened:
-					var object_area = get_area_under_mouse(0b0000_0100)
+					var object_area = get_area_under_screen_position(input.tap_position, 0b0000_0100)
 					if object_area != null:
 						current_object = object_area.get_parent_node_3d()
 						set_state(GameState.OBJECT)
 						return
 				
-				var box_area = get_area_under_mouse(0b0000_0001)
+				var box_area = get_area_under_screen_position(input.tap_position, 0b0000_0001)
 				if box_area != null: 
 					var hit_box: = Tools.find_parent_by_type(box_area, "Box") as Box
 					if hit_box != null:
@@ -186,6 +186,7 @@ func on_hello_world_button_pressed():
 	pass
 	
 func on_reset_button_pressed():
+	set_state(GameState.NONE)
 	set_state(GameState.MAILBOX)
 	
 func on_post_notifications_permission_result_received(result: bool):

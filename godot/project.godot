@@ -41,13 +41,9 @@ window/handheld/orientation=1
 
 enabled=PackedStringArray("res://addons/MailboxAndroidPlugin/plugin.cfg")
 
-[input]
+[input_devices]
 
-touch={
-"deadzone": 0.2,
-"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":1,"position":Vector2(155, 41),"global_position":Vector2(171, 125),"factor":1.0,"button_index":1,"canceled":false,"pressed":true,"double_click":false,"script":null)
-]
-}
+pointing/emulate_touch_from_mouse=true
 
 [layer_names]
 

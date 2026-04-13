@@ -1,83 +1,92 @@
 extends Node
 class_name GameInput
 
-#const TOUCH_TIME_THRESHOLD = 0.05
+const TAP_TIME_THRESHOLD = 0.1
+const DEBUG = false
+
+class Touch:
+	var index: int
+	var position: Vector2
+	var duration: float
+	var drag_delta: Vector2
+	var just_pressed: bool
+	var just_released: bool
+	var just_canceled: bool
+	
+var frame_events: Array[InputEvent]
+var touch_stack: Array[Touch]
+
+var has_just_tapped: bool
+var tap_position: Vector2
 
 var is_dragging: bool
 var drag_delta: Vector2
-var is_just_touched: bool
-
-var drag_duration: float
-var is_touch_down: bool
-var mouse_position: Vector2
-var last_mouse_position: Vector2
-
-#func _input(event: InputEvent) -> void:
-	#return
-	#if event is InputEventScreenDrag:
-		#print(event as InputEventScreenDrag)
-		#return
-	#
-	#if event is InputEventScreenTouch:
-		#pass
-	#elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
-		#pass
-	#else:
-		#return
-		#
-	##print("p:", event.position, event.is_pressed(), event.is_released())
-		#
-	#event.is_released()
-	#if not event.is_pressed():
-		#return
-	#
-	#pending_click_position = event.position
-	#pending_click = true
 
 func _input(event):
 	if event is InputEventScreenTouch:
-		pass
-	elif event is InputEventMouse && (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
-		pass
-	else:
-		return
-		
-	mouse_position = event.position
+		frame_events.append(event)
+	if event is InputEventScreenDrag:
+		frame_events.append(event)
 	pass
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	# clear released events from last frame
+	touch_stack = touch_stack.filter(is_touch_valid)
 	
-	is_just_touched = false
+	# clear/update one frame values
+	for i in touch_stack.size():
+		touch_stack[i].just_pressed = false
+		touch_stack[i].drag_delta = Vector2.ZERO
+		touch_stack[i].duration += delta
 	
-	var touch_just_pressed = Input.is_action_just_pressed(&"touch") # This works for mouse and touch apparently
-	var touch_just_released = Input.is_action_just_released(&"touch") 
+	# unpile current frame events
+	for event in frame_events:
+		if event is InputEventScreenTouch:
+			# Touch press
+			if event.pressed:
+				var touch: = Touch.new()
+				touch.index = event.index
+				touch.position = event.position
+				touch.just_pressed = true
+				touch_stack.append(touch)
+				if DEBUG:
+					print("pressed:", touch.index, touch.position)
+				continue
+				
+			# Touch release / cancel
+			for touch in touch_stack:
+				if touch.index == event.index:
+					touch.position = event.position
+					if not event.pressed:
+						touch.just_released = true
+						if DEBUG:
+							print("released:", touch.index, touch.position)
+					elif event.canceled:
+						touch.just_canceled = true
+						if DEBUG:
+							print("canceled:", touch.index, touch.position)
+			continue
+		elif event is InputEventScreenDrag:
+			for touch in touch_stack:
+				if touch.index == event.index:
+					touch.drag_delta = event.position - touch.position
+					touch.position = event.position
+	frame_events.clear()
 	
-	if is_touch_down:
-		drag_duration += delta
-		drag_delta = mouse_position - last_mouse_position
-		if last_mouse_position != mouse_position:
-			is_dragging = true
-		
-		#if drag_duration >= TOUCH_TIME_THRESHOLD:
-			#print("drog")
-			#is_dragging = true
+	# Process touch stack into convenient data
+	has_just_tapped = false
+	for i in touch_stack.size():
+		var touch = touch_stack[i]
+		if touch.just_released && touch.duration <= TAP_TIME_THRESHOLD && touch.drag_delta == Vector2.ZERO:
+			has_just_tapped = true
+			tap_position = touch.position
+			if DEBUG:
+				print("tap:", touch.index, tap_position)
+				
+	is_dragging = false
+	if touch_stack.size() > 0:
+		is_dragging = true
+		drag_delta = touch_stack[0].drag_delta
 	
-	if touch_just_pressed:
-		drag_duration = 0
-		is_touch_down = true
-		
-	if touch_just_released:
-		if not is_dragging:
-			is_just_touched = true
-		is_touch_down = false
-		is_dragging = false
-		drag_delta = Vector2(0,0)
-		
-	last_mouse_position = mouse_position
-	pass
+func is_touch_valid(touch: Touch):
+	return !touch.just_released && !touch.just_canceled
