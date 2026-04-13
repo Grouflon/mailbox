@@ -27,7 +27,10 @@ enum GameState
 	OBJECT,
 }
 var current_state: GameState = GameState.NONE
-var current_object: Node3D;
+var current_object: Node3D
+var transition_tween: Tween = null
+
+var mailbox_base_transform: Transform3D
 
 # Android
 const ANDROID_PLUGIN_NAME: = "MailboxAndroidPlugin"
@@ -52,6 +55,8 @@ func _ready() -> void:
 	hello_world_button.pressed.connect(on_hello_world_button_pressed)
 	reset_button.pressed.connect(on_reset_button_pressed)
 	
+	mailbox_base_transform = mailbox.transform
+	
 	update_delay_label()
 	delay_slider.value_changed.connect(on_delay_value_changed)
 	
@@ -69,11 +74,17 @@ func set_state(state: GameState):
 		GameState.MAILBOX:
 			mailbox.visible = false
 			box.visible = true
+			if transition_tween != null:
+				transition_tween.kill()
+				transition_tween = null
 			
 		GameState.PARCEL:
 			box.visible = false
 			object_viewer.target = null
 			box.set_closed()
+			if transition_tween != null:
+				transition_tween.kill()
+				transition_tween = null
 			
 		GameState.OBJECT:
 			# hack until objects are handled generically
@@ -90,6 +101,8 @@ func set_state(state: GameState):
 		GameState.MAILBOX:
 			mailbox.visible = true
 			mailbox.set_closed()
+			
+			mailbox.transform = mailbox_base_transform
 			
 			box.visible = true
 			box.reparent(mailbox.content_parent, false)
@@ -113,9 +126,9 @@ func set_state(state: GameState):
 			
 			object_viewer.target = current_object
 	
-func get_area_under_screen_position(position: Vector2, collision_mask: int = 0xFFFFFFFF) -> Area3D:
-	var ray_origin: = camera.project_ray_origin(position)
-	var ray_normal: = camera.project_ray_normal(position)
+func get_area_under_screen_position(pos: Vector2, collision_mask: int = 0xFFFFFFFF) -> Area3D:
+	var ray_origin: = camera.project_ray_origin(pos)
+	var ray_normal: = camera.project_ray_normal(pos)
 	var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0, collision_mask)
 	query.collide_with_areas = true
 	var result: = get_world_3d().direct_space_state.intersect_ray(query)
@@ -128,12 +141,33 @@ func _process(delta: float) -> void:
 	# Update state
 	match current_state:
 		GameState.MAILBOX:
+			if transition_tween != null: return
+			
 			if input.has_just_tapped:
 				var area = get_area_under_screen_position(input.tap_position, 0b0000_0011) # mailbox + box
 				if area != null: 
 					var hit_box: = Tools.find_parent_by_type(area, "Box") as Box
 					if hit_box != null:
-						set_state(GameState.PARCEL)
+						
+						# Mailbox to parcel transition
+						var mailbox_target_transform: = mailbox.transform\
+							.translated(Vector3(0,0,-200))\
+							.scaled(Vector3(0.0001,0.0001,0.0001))
+							
+						transition_tween = get_tree().create_tween()
+						transition_tween.tween_property(mailbox, "transform", mailbox_target_transform, 0.4)\
+							.set_ease(Tween.EASE_IN)\
+							.set_trans(Tween.TRANS_BACK)
+						
+						box.reparent(world)
+						transition_tween.parallel().tween_property(box, "transform", parcel_viewing_parent.transform, 0.7)\
+							.set_ease(Tween.EASE_OUT)\
+							.set_trans(Tween.TRANS_ELASTIC)\
+							.set_delay(0.4)
+							
+						transition_tween.tween_callback(on_transition_over)
+						return
+						
 					else:
 						var hit_mailbox: = Tools.find_parent_by_type(area, "Mailbox") as Mailbox
 						if hit_mailbox != null:
@@ -144,12 +178,31 @@ func _process(delta: float) -> void:
 						
 							
 		GameState.PARCEL:
+			if transition_tween != null: return
+			
 			if input.has_just_tapped:
 				if box.opened:
 					var object_area = get_area_under_screen_position(input.tap_position, 0b0000_0100)
 					if object_area != null:
 						current_object = object_area.get_parent_node_3d()
-						set_state(GameState.OBJECT)
+						
+						# Parcel to object transition
+						var parcel_target_transform: = box.transform\
+							.translated(mailbox.position - Vector3(0,0,-200))\
+							.scaled(Vector3(0.0001,0.0001,0.0001))
+							
+						transition_tween = get_tree().create_tween()
+						transition_tween.tween_property(box, "transform", parcel_target_transform, 0.4)\
+							.set_ease(Tween.EASE_IN)\
+							.set_trans(Tween.TRANS_BACK)
+						
+						current_object.reparent(world)
+						transition_tween.parallel().tween_property(current_object, "transform", parcel_viewing_parent.transform, 1)\
+							.set_ease(Tween.EASE_OUT)\
+							.set_trans(Tween.TRANS_ELASTIC)\
+							.set_delay(0.3)
+							
+						transition_tween.tween_callback(on_transition_over)
 						return
 				
 				var box_area = get_area_under_screen_position(input.tap_position, 0b0000_0001)
@@ -192,3 +245,12 @@ func on_reset_button_pressed():
 func on_post_notifications_permission_result_received(result: bool):
 	print("Permission: %s" % result)
 	pass
+
+func on_transition_over():
+	match current_state:
+		GameState.MAILBOX:
+			set_state(GameState.PARCEL)
+		
+		GameState.PARCEL:
+			set_state(GameState.OBJECT)
+	
