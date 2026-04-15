@@ -81,7 +81,7 @@ func set_state(state: GameState):
 		GameState.PARCEL:
 			box.visible = false
 			object_viewer.target = null
-			box.set_closed()
+			box.set_locked()
 			if transition_tween != null:
 				transition_tween.kill()
 				transition_tween = null
@@ -116,7 +116,7 @@ func set_state(state: GameState):
 			
 			box.reparent(world, false)
 			box.transform = parcel_viewing_parent.transform
-			box.set_closed()
+			box.set_locked()
 			
 		GameState.OBJECT:
 			assert(current_object != null)

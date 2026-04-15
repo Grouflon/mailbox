@@ -7,6 +7,13 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_ks2v0"]
 size = Vector3(2.1660156, 2.538086, 3.008789)
 
+[sub_resource type="Curve3D" id="Curve3D_c2ln5"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.8041945),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
 [node name="box" unique_id=226211958 node_paths=PackedStringArray("animation_player", "content_parent") instance=ExtResource("1_3inec")]
 script = ExtResource("2_ks2v0")
 animation_player = NodePath("AnimationPlayer")
@@ -20,13 +27,19 @@ input_ray_pickable = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49475098, 0)
 shape = SubResource("BoxShape3D_ks2v0")
 
-[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(424947814) index="0" unique_id=790917083]
-bones/1/rotation = Quaternion(-0.64278764, -3.2464167e-14, -1.5325253e-07, 0.76604444)
-bones/2/rotation = Quaternion(0.6427879, 8.347931e-14, 1.5325254e-07, 0.76604426)
-bones/3/rotation = Quaternion(-1.4590579e-07, 8.3973006e-08, 0.64278775, 0.7660444)
-bones/4/rotation = Quaternion(1.6059923e-07, -8.397295e-08, -0.64278775, 0.7660444)
+[node name="Skeleton3D" parent="box" parent_id_path=PackedInt32Array(634610573) index="0" unique_id=645893171]
+bones/1/rotation = Quaternion(0.7071066, 2.0097178e-14, 1.6858729e-07, 0.70710695)
+bones/2/rotation = Quaternion(-0.7071066, 2.5121473e-14, -1.6858745e-07, 0.70710695)
+bones/3/rotation = Quaternion(2.9502792e-07, 4.2146862e-08, -0.70710665, 0.7071069)
+bones/4/rotation = Quaternion(-4.214682e-08, -4.214683e-08, 0.70710665, 0.7071069)
+bones/5/rotation = Quaternion(-0.7071068, 8.42937e-08, -8.42937e-08, 0.7071068)
+bones/14/rotation = Quaternion(-0.7071068, 4.7915422e-21, 4.7915422e-21, 0.7071068)
 
 [node name="content_parent" type="Marker3D" parent="." index="3" unique_id=846267319]
 transform = Transform3D(0.3564026, 0.1815962, 7.937823e-09, 0, -1.7484556e-08, 0.4, 0.1815962, -0.3564026, -1.5578854e-08, 0, -0.54047656, 0)
 
 [node name="gameboy" parent="content_parent" index="0" unique_id=634348738 instance=ExtResource("3_c2ln5")]
+
+[node name="unlock_path" type="Path3D" parent="." index="4" unique_id=1863239906]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.87629116, -1.4025981)
+curve = SubResource("Curve3D_c2ln5")
