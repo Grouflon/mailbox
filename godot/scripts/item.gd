@@ -1,0 +1,8 @@
+extends Node3D
+class_name Item
+
+@export var viewing_base_rotation: Vector3
+@export var viewing_base_scale: Vector3 = Vector3.ONE
+
+func get_base_viewing_transform() -> Transform3D:
+	return Transform3D(Basis(Quaternion.from_euler(viewing_base_rotation)).scaled(viewing_base_scale))

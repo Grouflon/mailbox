@@ -3,17 +3,13 @@
 [ext_resource type="Script" uid="uid://d1kt8ub0i0o77" path="res://scripts/game.gd" id="1_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://cn06qe6p6mnbo" path="res://scenes/box.tscn" id="4_tipki"]
 [ext_resource type="Theme" uid="uid://ci68qf23fewv5" path="res://ui_theme.tres" id="5_85g3d"]
+[ext_resource type="PackedScene" uid="uid://bj0a6w6yln2jn" path="res://scenes/gameboy.tscn" id="5_tefeu"]
 [ext_resource type="PackedScene" uid="uid://b8ssfw6m4wf0j" path="res://scenes/mailbox.tscn" id="6_o6xl0"]
-[ext_resource type="Script" uid="uid://g83xh0xmdtxo" path="res://scripts/game_input.gd" id="6_tefeu"]
 [ext_resource type="Script" uid="uid://dmfbvrxq6u5iw" path="res://scripts/object_viewer.gd" id="7_o6xl0"]
 
 [node name="main" type="Node3D" unique_id=7951666]
 
 [node name="scripts" type="Node" parent="." unique_id=537972198]
-
-[node name="input" type="Node" parent="scripts" unique_id=1314666973]
-script = ExtResource("6_tefeu")
-metadata/_custom_type_script = "uid://g83xh0xmdtxo"
 
 [node name="viewer" type="Node" parent="scripts" unique_id=1632554547 node_paths=PackedStringArray("camera")]
 script = ExtResource("7_o6xl0")
@@ -22,7 +18,7 @@ drag_speed = Vector2(0.003, 0.003)
 drag_smooth = 0.15
 metadata/_custom_type_script = "uid://dmfbvrxq6u5iw"
 
-[node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "box", "camera", "input", "object_viewer", "parcel_viewing_parent")]
+[node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "box", "camera", "viewer", "viewing_parent")]
 transform = Transform3D(0.99922216, -0.032813, 0.021871835, 0.03301667, 0.9994142, -0.009016852, -0.021563161, 0.009731951, 0.9997201, 0, 0, 0)
 script = ExtResource("1_tbgi4")
 notification_button = NodePath("../../ui/notification_button")
@@ -35,15 +31,19 @@ delay_label = NodePath("../../ui/delay_widget/Label")
 delay_slider = NodePath("../../ui/delay_widget/HSlider")
 world = NodePath("../../world")
 mailbox = NodePath("../../world/mailbox")
-box = NodePath("../../world/parcel_viewing/box")
+box = NodePath("../../world/mailbox/box/content_parent/box")
 camera = NodePath("../../world/camera")
-input = NodePath("../input")
-object_viewer = NodePath("../viewer")
-parcel_viewing_parent = NodePath("../../world/parcel_viewing")
+viewer = NodePath("../viewer")
+viewing_parent = NodePath("../../world/viewing_parent")
 
 [node name="world" type="Node3D" parent="." unique_id=1193364249]
 
 [node name="mailbox" parent="world" unique_id=25785074 instance=ExtResource("6_o6xl0")]
+visible = false
+
+[node name="box" parent="world/mailbox/box/content_parent" parent_id_path=PackedInt32Array(25785074, 155672104) index="0" unique_id=226211958 instance=ExtResource("4_tipki")]
+transform = Transform3D(1.4802341, 0.5694762, 0.12488067, -0.57653284, 1.379172, 0.5445054, 0.08664912, -0.55188155, 1.4896008, 0, 1.590909, 0)
+visible = false
 
 [node name="camera" type="Camera3D" parent="world" unique_id=507978905]
 transform = Transform3D(1, 0, 0, 0, 0.99553734, 0.09436891, 0, -0.09436891, 0.99553734, 4.7683716e-07, 0.25618982, 7.909498)
@@ -53,10 +53,10 @@ size = 7.25
 [node name="light" type="DirectionalLight3D" parent="world" unique_id=982340471]
 transform = Transform3D(0.90571684, -0.21764983, 0.36373836, 0, 0.8581097, 0.5134664, -0.4238833, -0.46505517, 0.7772044, 3.2657259, 1.0447959, 4.043362)
 
-[node name="parcel_viewing" type="Node3D" parent="world" unique_id=2008776012]
-transform = Transform3D(0.47976157, 4.172325e-08, 0.5097341, 0.26582688, 0.59727544, -0.25019622, -0.43493098, 0.36505082, 0.40935677, 0, 0, 0)
+[node name="viewing_parent" type="Node3D" parent="world" unique_id=2008776012]
 
-[node name="box" parent="world/parcel_viewing" unique_id=226211958 instance=ExtResource("4_tipki")]
+[node name="gameboy" parent="world/viewing_parent" unique_id=634348738 instance=ExtResource("5_tefeu")]
+transform = Transform3D(0.9249253, -0.064677075, 0.37460658, 0.06975647, 0.9975641, 0, -0.37369406, 0.026131233, 0.92718387, 0, 0, 0)
 visible = false
 
 [node name="ui" type="Control" parent="." unique_id=1108586680]

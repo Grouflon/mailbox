@@ -26,5 +26,5 @@ shape = SubResource("BoxShape3D_3eaje")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.7557678)
 shape = SubResource("BoxShape3D_80nar")
 
-[node name="content_parent" type="Marker3D" parent="box" parent_id_path=PackedInt32Array(43662731) index="2" unique_id=155672104]
-transform = Transform3D(0.3056497, 0, 0.31650952, 0, 0.44, 0, -0.31650952, 0, 0.3056497, 0, -0.7, 0)
+[node name="content_parent" type="Marker3D" parent="box" parent_id_path=PackedInt32Array(412267608) index="2" unique_id=155672104]
+transform = Transform3D(-0.30564967, 0, -0.31650954, 0, 0.44, 0, 0.31650954, 0, -0.30564967, 0, -0.7, 0)

@@ -14,8 +14,8 @@ extends Node3D
 @export var mailbox: Mailbox;
 @export var box: Box;
 @export var camera: Camera3D;
-@export var object_viewer: ObjectViewer
-@export var parcel_viewing_parent: Node3D
+@export var viewer: ObjectViewer
+@export var viewing_parent: Node3D
 
 # Game state
 enum GameState
@@ -26,7 +26,7 @@ enum GameState
 	OBJECT,
 }
 var current_state: GameState = GameState.NONE
-var current_object: Node3D
+var current_item: Item
 var transition_tween: Tween = null
 
 var mailbox_base_transform: Transform3D
@@ -56,6 +56,10 @@ func _ready() -> void:
 	
 	mailbox_base_transform = mailbox.transform
 	
+	# remove child of viewing_parent. They are useful to tune transforms in editor but they may fuck up raycasts and stuff runtime
+	for n in viewing_parent.get_children():
+		n.queue_free()
+	
 	update_delay_label()
 	delay_slider.value_changed.connect(on_delay_value_changed)
 	
@@ -63,7 +67,7 @@ func _ready() -> void:
 	
 	mailbox.visible = false
 	box.visible = false
-	set_state(GameState.MAILBOX)
+	set_state(GameState.PARCEL)
 	
 func set_state(state: GameState):
 	if state == current_state: return
@@ -79,7 +83,7 @@ func set_state(state: GameState):
 			
 		GameState.PARCEL:
 			box.visible = false
-			object_viewer.target = null
+			viewer.target = null
 			box.set_locked()
 			if transition_tween != null:
 				transition_tween.kill()
@@ -87,11 +91,11 @@ func set_state(state: GameState):
 			
 		GameState.OBJECT:
 			# hack until objects are handled generically
-			current_object.reparent(box.content_parent, false)
-			current_object.transform = Transform3D.IDENTITY
+			current_item.reparent(box.content_parent, false)
+			current_item.transform = Transform3D.IDENTITY
 			
-			current_object = null
-			object_viewer.target = null
+			current_item = null
+			viewer.target = null
 	
 	current_state = state
 	
@@ -111,19 +115,19 @@ func set_state(state: GameState):
 		GameState.PARCEL:
 			box.visible = true
 			
-			object_viewer.target = box
+			viewer.target = box
 			
 			box.reparent(world, false)
-			box.transform = parcel_viewing_parent.transform
+			box.transform = viewing_parent.transform * box.get_base_viewing_transform()
 			box.set_locked()
 			
 		GameState.OBJECT:
-			assert(current_object != null)
+			assert(current_item != null)
 			
-			current_object.reparent(world, false)
-			current_object.transform = parcel_viewing_parent.transform
+			current_item.reparent(world, false)
+			current_item.transform = viewing_parent.transform * current_item.get_base_viewing_transform()
 			
-			object_viewer.target = current_object
+			viewer.target = current_item
 	
 func get_area_under_screen_position(pos: Vector2, collision_mask: int = 0xFFFFFFFF) -> Area3D:
 	var ray_origin: = camera.project_ray_origin(pos)
@@ -134,8 +138,6 @@ func get_area_under_screen_position(pos: Vector2, collision_mask: int = 0xFFFFFF
 	return result.get("collider") as Area3D
 	
 func _process(delta: float) -> void:
-	
-	object_viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
 	
 	# Update state
 	match current_state:
@@ -159,7 +161,8 @@ func _process(delta: float) -> void:
 							.set_trans(Tween.TRANS_BACK)
 						
 						box.reparent(world)
-						transition_tween.parallel().tween_property(box, "transform", parcel_viewing_parent.transform, 0.7)\
+						
+						transition_tween.parallel().tween_property(box, "transform", viewing_parent.transform * box.get_base_viewing_transform(), 0.7)\
 							.set_ease(Tween.EASE_OUT)\
 							.set_trans(Tween.TRANS_ELASTIC)\
 							.set_delay(0.4)
@@ -179,11 +182,17 @@ func _process(delta: float) -> void:
 		GameState.PARCEL:
 			if transition_tween != null: return
 			
+			if box.unlocking_touch_index < 0:
+				viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
+			
 			if GameInput.has_just_tapped:
 				if box.current_state == Box.State.OPENED:
-					var object_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
-					if object_area != null:
-						current_object = object_area.get_parent_node_3d()
+					var item_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
+					if item_area != null:
+						var item = Tools.find_parent_by_type(item_area, "Item") as Item
+						if item == null: return
+						current_item = item
+						print(current_item)
 						
 						# Parcel to object transition
 						var parcel_target_transform: = box.transform\
@@ -195,8 +204,8 @@ func _process(delta: float) -> void:
 							.set_ease(Tween.EASE_IN)\
 							.set_trans(Tween.TRANS_BACK)
 						
-						current_object.reparent(world)
-						transition_tween.parallel().tween_property(current_object, "transform", parcel_viewing_parent.transform, 1)\
+						current_item.reparent(world)
+						transition_tween.parallel().tween_property(current_item, "transform", viewing_parent.transform * current_item.get_base_viewing_transform(), 1)\
 							.set_ease(Tween.EASE_OUT)\
 							.set_trans(Tween.TRANS_ELASTIC)\
 							.set_delay(0.3)
@@ -210,8 +219,12 @@ func _process(delta: float) -> void:
 					if hit_box != null:
 						if hit_box.current_state == Box.State.OPENED:
 							hit_box.close()
-						else:
+						elif hit_box.current_state == Box.State.UNLOCKED:
 							hit_box.open()
+							
+		GameState.OBJECT:
+			viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
+			
 
 func on_notification_button_pressed() -> void:
 	android_plugin.test_notifications()
