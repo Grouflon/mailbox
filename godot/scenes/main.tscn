@@ -41,7 +41,7 @@ viewing_parent = NodePath("../../world/viewing_parent")
 [node name="mailbox" parent="world" unique_id=25785074 instance=ExtResource("6_o6xl0")]
 visible = false
 
-[node name="box" parent="world/mailbox/box/content_parent" parent_id_path=PackedInt32Array(25785074, 155672104) index="0" unique_id=226211958 instance=ExtResource("4_tipki")]
+[node name="box" parent="world/mailbox/box/content_parent" parent_id_path=PackedInt32Array(25785074, 155672104) index="0" unique_id=1168527768 instance=ExtResource("4_tipki")]
 transform = Transform3D(1.4802341, 0.5694762, 0.12488067, -0.57653284, 1.379172, 0.5445054, 0.08664912, -0.55188155, 1.4896008, 0, 1.590909, 0)
 visible = false
 

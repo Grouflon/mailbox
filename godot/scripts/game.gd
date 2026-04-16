@@ -67,7 +67,7 @@ func _ready() -> void:
 	
 	mailbox.visible = false
 	box.visible = false
-	set_state(GameState.PARCEL)
+	set_state(GameState.MAILBOX)
 	
 func set_state(state: GameState):
 	if state == current_state: return

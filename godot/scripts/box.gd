@@ -70,7 +70,7 @@ func _process(dt: float):
 			if unlocking_touch_index >= 0:
 				var path_offset: = unlock_path.curve.get_closest_offset(unlock_path.global_transform.affine_inverse() * result.result_B)
 				#DebugDraw3D.draw_sphere(unlock_path.global_transform * unlock_path.curve.sample_baked(path_offset), 0.1, Color.BISQUE)
-				unlock_ratio = max(path_offset / l, unlock_ratio)
+				unlock_ratio = path_offset / l
 				animation_player.seek(animation_player.current_animation_length * unlock_ratio, true);
 
 func set_state(state: State):
