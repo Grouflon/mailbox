@@ -1,9 +1,10 @@
 extends Node
-class_name GameInput
+class_name _GameInput
 
 const TAP_TIME_THRESHOLD = 0.1
 const DEBUG = false
 
+# public
 class Touch:
 	var index: int
 	var position: Vector2
@@ -13,7 +14,6 @@ class Touch:
 	var just_released: bool
 	var just_canceled: bool
 	
-var frame_events: Array[InputEvent]
 var touch_stack: Array[Touch]
 
 var has_just_tapped: bool
@@ -21,6 +21,9 @@ var tap_position: Vector2
 
 var is_dragging: bool
 var drag_delta: Vector2
+
+# private
+var frame_events: Array[InputEvent]
 
 func _input(event):
 	if event is InputEventScreenTouch:

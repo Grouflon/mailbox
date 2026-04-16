@@ -14,7 +14,6 @@ extends Node3D
 @export var mailbox: Mailbox;
 @export var box: Box;
 @export var camera: Camera3D;
-@export var input: GameInput;
 @export var object_viewer: ObjectViewer
 @export var parcel_viewing_parent: Node3D
 
@@ -107,7 +106,7 @@ func set_state(state: GameState):
 			box.visible = true
 			box.reparent(mailbox.content_parent, false)
 			box.transform = Transform3D.IDENTITY
-			box.set_closed()
+			box.set_locked()
 			
 		GameState.PARCEL:
 			box.visible = true
@@ -136,15 +135,15 @@ func get_area_under_screen_position(pos: Vector2, collision_mask: int = 0xFFFFFF
 	
 func _process(delta: float) -> void:
 	
-	object_viewer.update(delta, input.is_dragging, input.drag_delta)
+	object_viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
 	
 	# Update state
 	match current_state:
 		GameState.MAILBOX:
 			if transition_tween != null: return
 			
-			if input.has_just_tapped:
-				var area = get_area_under_screen_position(input.tap_position, 0b0000_0011) # mailbox + box
+			if GameInput.has_just_tapped:
+				var area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0011) # mailbox + box
 				if area != null: 
 					var hit_box: = Tools.find_parent_by_type(area, "Box") as Box
 					if hit_box != null:
@@ -180,9 +179,9 @@ func _process(delta: float) -> void:
 		GameState.PARCEL:
 			if transition_tween != null: return
 			
-			if input.has_just_tapped:
-				if box.opened:
-					var object_area = get_area_under_screen_position(input.tap_position, 0b0000_0100)
+			if GameInput.has_just_tapped:
+				if box.current_state == Box.State.OPENED:
+					var object_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
 					if object_area != null:
 						current_object = object_area.get_parent_node_3d()
 						
@@ -205,11 +204,11 @@ func _process(delta: float) -> void:
 						transition_tween.tween_callback(on_transition_over)
 						return
 				
-				var box_area = get_area_under_screen_position(input.tap_position, 0b0000_0001)
+				var box_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0001)
 				if box_area != null: 
 					var hit_box: = Tools.find_parent_by_type(box_area, "Box") as Box
 					if hit_box != null:
-						if hit_box.opened:
+						if hit_box.current_state == Box.State.OPENED:
 							hit_box.close()
 						else:
 							hit_box.open()

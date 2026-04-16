@@ -14,10 +14,15 @@ _data = {
 }
 point_count = 2
 
-[node name="box" unique_id=226211958 node_paths=PackedStringArray("animation_player", "content_parent") instance=ExtResource("1_3inec")]
+[sub_resource type="BoxShape3D" id="BoxShape3D_c2ln5"]
+size = Vector3(0.4182129, 0.17871094, 0.41210938)
+
+[node name="box" unique_id=1168527768 node_paths=PackedStringArray("animation_player", "content_parent", "unlock_path", "unlock_area") instance=ExtResource("1_3inec")]
 script = ExtResource("2_ks2v0")
 animation_player = NodePath("AnimationPlayer")
 content_parent = NodePath("content_parent")
+unlock_path = NodePath("unlock_path")
+unlock_area = NodePath("unlock_area")
 
 [node name="area" type="Area3D" parent="." index="0" unique_id=1576720459]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022211075, 0, 0)
@@ -27,7 +32,7 @@ input_ray_pickable = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49475098, 0)
 shape = SubResource("BoxShape3D_ks2v0")
 
-[node name="Skeleton3D" parent="box" parent_id_path=PackedInt32Array(634610573) index="0" unique_id=645893171]
+[node name="Skeleton3D" parent="box" parent_id_path=PackedInt32Array(1328639652) index="0" unique_id=1605040717]
 bones/1/rotation = Quaternion(0.7071066, 2.0097178e-14, 1.6858729e-07, 0.70710695)
 bones/2/rotation = Quaternion(-0.7071066, 2.5121473e-14, -1.6858745e-07, 0.70710695)
 bones/3/rotation = Quaternion(2.9502792e-07, 4.2146862e-08, -0.70710665, 0.7071069)
@@ -43,3 +48,11 @@ transform = Transform3D(0.3564026, 0.1815962, 7.937823e-09, 0, -1.7484556e-08, 0
 [node name="unlock_path" type="Path3D" parent="." index="4" unique_id=1863239906]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.87629116, -1.4025981)
 curve = SubResource("Curve3D_c2ln5")
+
+[node name="unlock_area" type="Area3D" parent="." index="5" unique_id=2047130534]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.87629116, -1.4025981)
+collision_layer = 8
+collision_mask = 0
+
+[node name="unlock_collider" type="CollisionShape3D" parent="unlock_area" index="0" unique_id=1779132525]
+shape = SubResource("BoxShape3D_c2ln5")
