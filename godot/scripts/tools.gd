@@ -70,3 +70,9 @@ func line_line_shortest_route(A1: Vector3, A2: Vector3, B1: Vector3, B2: Vector3
 	result.result_B = B1 + p43 * result.ratio_B;
 
 	return result
+	
+# NOTE(Remi|2019/05/30): See http://www.rorydriscoll.com/2016/03/07/frame-rate-independent-damping-using-lerp/
+func time_independent_lerp(base: float, target: float, time_to_90: float, dt: float) -> float:
+	if time_to_90 <= 0: return target
+	var lambda: = -log(1.0 - 0.9) / time_to_90
+	return lerp(base, target, 1.0 - exp(-lambda * dt))

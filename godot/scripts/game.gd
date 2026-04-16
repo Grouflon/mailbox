@@ -192,7 +192,6 @@ func _process(delta: float) -> void:
 						var item = Tools.find_parent_by_type(item_area, "Item") as Item
 						if item == null: return
 						current_item = item
-						print(current_item)
 						
 						# Parcel to object transition
 						var parcel_target_transform: = box.transform\
