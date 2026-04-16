@@ -54,6 +54,7 @@ size = 7.25
 transform = Transform3D(0.90571684, -0.21764983, 0.36373836, 0, 0.8581097, 0.5134664, -0.4238833, -0.46505517, 0.7772044, 3.2657259, 1.0447959, 4.043362)
 
 [node name="viewing_parent" type="Node3D" parent="world" unique_id=2008776012]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6331539, 0)
 
 [node name="gameboy" parent="world/viewing_parent" unique_id=634348738 instance=ExtResource("5_tefeu")]
 transform = Transform3D(0.9249253, -0.064677075, 0.37460658, 0.06975647, 0.9975641, 0, -0.37369406, 0.026131233, 0.92718387, 0, 0, 0)

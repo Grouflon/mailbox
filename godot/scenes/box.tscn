@@ -14,11 +14,12 @@ _data = {
 }
 point_count = 2
 
-[node name="box" unique_id=1168527768 node_paths=PackedStringArray("animation_player", "content_parent", "unlock_path") instance=ExtResource("1_3inec")]
+[node name="box" unique_id=1009196777 node_paths=PackedStringArray("animation_player", "content_parent", "unlock_path") instance=ExtResource("1_3inec")]
 script = ExtResource("2_ks2v0")
 animation_player = NodePath("AnimationPlayer")
 content_parent = NodePath("content_parent")
 unlock_path = NodePath("unlock_path")
+interaction_radius = 0.2
 viewing_base_rotation = Vector3(-0.3493217, -2.2551017, -0.3959507)
 viewing_base_scale = Vector3(0.7, 0.7, 0.7)
 
@@ -29,14 +30,6 @@ input_ray_pickable = false
 [node name="box_collider" type="CollisionShape3D" parent="area" index="0" unique_id=80903983]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49475098, 0)
 shape = SubResource("BoxShape3D_ks2v0")
-
-[node name="Skeleton3D" parent="box" parent_id_path=PackedInt32Array(77978161) index="0" unique_id=1244062204]
-bones/1/rotation = Quaternion(-3.5527092e-15, -3.1974423e-14, -6.57252e-14, 1)
-bones/2/rotation = Quaternion(1.7881393e-07, 9.947598e-14, -2.3092639e-14, 1)
-bones/3/rotation = Quaternion(1.1920932e-07, 1.1920932e-07, 7.105427e-15, 1)
-bones/4/rotation = Quaternion(1.1920932e-07, -1.19209275e-07, -7.105429e-15, 1)
-bones/5/rotation = Quaternion(-0.7071068, 8.42937e-08, -8.42937e-08, 0.7071068)
-bones/14/rotation = Quaternion(-0.7071068, 4.7915422e-21, 4.7915422e-21, 0.7071068)
 
 [node name="content_parent" type="Marker3D" parent="." index="3" unique_id=846267319]
 transform = Transform3D(-0.3564026, -0.18159623, -7.937824e-09, 0, -1.7484556e-08, 0.4, -0.18159623, 0.3564026, 1.5578852e-08, 0, -0.54047656, 0)
