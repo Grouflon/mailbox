@@ -85,3 +85,16 @@ func time_independent_lerp(base: float, target: float, time_to_90: float, dt: fl
 	if time_to_90 <= 0: return target
 	var lambda: = -log(1.0 - 0.9) / time_to_90
 	return lerp(base, target, 1.0 - exp(-lambda * dt))
+	
+func time_independent_lerp_vec2(base: Vector2, target: Vector2, time_to_90: float, dt: float) -> Vector2:
+	return Vector2(
+		time_independent_lerp(base.x, target.x, time_to_90, dt),
+		time_independent_lerp(base.y, target.y, time_to_90, dt)
+	)
+	
+func time_independent_lerp_vec3(base: Vector3, target: Vector3, time_to_90: float, dt: float) -> Vector3:
+	return Vector3(
+		time_independent_lerp(base.x, target.x, time_to_90, dt),
+		time_independent_lerp(base.y, target.y, time_to_90, dt),
+		time_independent_lerp(base.z, target.z, time_to_90, dt)
+	)

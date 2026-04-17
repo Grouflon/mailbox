@@ -15,7 +15,7 @@
 script = ExtResource("7_o6xl0")
 camera = NodePath("../../world/camera")
 drag_speed = Vector2(0.003, 0.003)
-drag_smooth = 0.15
+drag_smooth_time = 0.3
 metadata/_custom_type_script = "uid://dmfbvrxq6u5iw"
 
 [node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "gameboy", "box", "viewer", "viewing_parent")]

@@ -4,7 +4,7 @@ class_name ObjectViewer
 @export var target: Node3D
 @export var camera: Camera3D
 @export var drag_speed: Vector2 = Vector2(1,1);
-@export var drag_smooth: float = 0.05;
+@export var drag_smooth_time: float = 0.05;
 
 var smoothed_drag_input: Vector2
 
@@ -12,7 +12,7 @@ func update(delta: float, is_dragging: bool, input: Vector2):
 	if target == null: return
 	if camera == null: return
 	
-	smoothed_drag_input = lerp(smoothed_drag_input, Vector2.ZERO, drag_smooth)
+	smoothed_drag_input = Tools.time_independent_lerp_vec2(smoothed_drag_input, Vector2.ZERO, drag_smooth_time, delta)
 	if is_dragging:
 		smoothed_drag_input = input
 		
