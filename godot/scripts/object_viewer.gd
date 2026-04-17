@@ -5,6 +5,13 @@ class_name ObjectViewer
 @export var camera: Camera3D
 @export var drag_speed: Vector2 = Vector2(1,1);
 @export var drag_smooth_time: float = 0.05;
+@export var sample_count: int = 10;
+
+class InputSample:
+	var input: Vector2
+	var dt: float
+
+var samples: Array[InputSample]
 
 var smoothed_drag_input: Vector2
 
@@ -12,9 +19,30 @@ func update(delta: float, is_dragging: bool, input: Vector2):
 	if target == null: return
 	if camera == null: return
 	
-	smoothed_drag_input = Tools.time_independent_lerp_vec2(smoothed_drag_input, Vector2.ZERO, drag_smooth_time, delta)
 	if is_dragging:
-		smoothed_drag_input = input
+		
+		# we average samples cause zero inputs are inserted before release in the input on some devices and it kills momentum
+		var sample: = InputSample.new()
+		sample.input = input
+		sample.dt = delta
+		samples.append(sample)
+		while samples.size() > sample_count:
+			samples.pop_front()
+			
+		var total_time: float = 0.0
+		var average_input: Vector2 = Vector2.ZERO
+		for s in samples:
+			total_time += s.dt
+			
+		for s in samples:
+			average_input += (s.dt / total_time) * s.input
+		
+		smoothed_drag_input = average_input
+	else:
+		samples.clear()
+		smoothed_drag_input = Tools.time_independent_lerp_vec2(smoothed_drag_input, Vector2.ZERO, drag_smooth_time, delta)
+	
+	#print("%.2f, %s %v"%[delta, is_dragging, input])
 		
 	var x_axis = camera.get_camera_transform().basis.y
 	var y_axis = camera.get_camera_transform().basis.x
