@@ -137,6 +137,14 @@ func update_tape_interaction():
 
 	var touch: = GameInput.touch_stack[0]
 	
+	# temp wonky solution to prevent untaping from behind
+	var tape_normal: = unlock_path.global_transform * unlock_path.curve.sample_baked_up_vector(0.0)
+	var camera_normal: = get_viewport().get_camera_3d().project_ray_normal(touch.position)
+	var is_tape_facing_away: bool = camera_normal.dot(tape_normal) >= 0
+	if is_tape_facing_away:
+		unlocking_touch_index = -1
+		return
+	
 	var l: = unlock_path.curve.get_baked_length()
 	var path_begin: = unlock_path.global_transform * unlock_path.curve.get_point_position(0);
 	var path_end: = unlock_path.global_transform * unlock_path.curve.get_point_position(unlock_path.curve.point_count-1);
