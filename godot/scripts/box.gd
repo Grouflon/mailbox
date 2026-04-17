@@ -156,8 +156,8 @@ func update_tape_interaction():
 	#DebugDraw3D.draw_sphere(result.result_A, 0.1)
 	
 	if unlocking_touch_index < 0:
-		var offset = max(current_unlock_ratio * l, interaction_radius) # small UX tweak for initial interaction that is off visual at 0
-		var current_unlock_point: = unlock_path.global_transform * unlock_path.curve.sample_baked()
+		var offset = max(current_unlock_ratio * l, interaction_radius * unlock_path.global_transform.basis.get_scale().x) # small UX tweak for initial interaction that is off visual at 0
+		var current_unlock_point: = unlock_path.global_transform * unlock_path.curve.sample_baked(offset)
 		if touch.just_pressed && result.result_A.distance_to(current_unlock_point) <= interaction_radius:
 			unlocking_touch_index = touch.index
 	else:
