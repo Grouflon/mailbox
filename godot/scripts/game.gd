@@ -13,7 +13,6 @@ extends Node3D
 @export var world: Node3D
 @export var mailbox: Mailbox;
 @export var box: Box;
-@export var camera: Camera3D;
 @export var viewer: ObjectViewer
 @export var viewing_parent: Node3D
 
@@ -67,7 +66,11 @@ func _ready() -> void:
 	
 	mailbox.visible = false
 	box.visible = false
-	set_state(GameState.MAILBOX)
+	#set_state(GameState.MAILBOX)
+	call_deferred("late_ready")
+	
+func late_ready():
+	set_state(GameState.PARCEL)
 	
 func set_state(state: GameState):
 	if state == current_state: return
@@ -84,7 +87,6 @@ func set_state(state: GameState):
 		GameState.PARCEL:
 			box.visible = false
 			viewer.target = null
-			box.set_locked()
 			if transition_tween != null:
 				transition_tween.kill()
 				transition_tween = null
@@ -110,7 +112,7 @@ func set_state(state: GameState):
 			box.visible = true
 			box.reparent(mailbox.content_parent, false)
 			box.transform = Transform3D.IDENTITY
-			box.set_locked()
+			box.reset()
 			
 		GameState.PARCEL:
 			box.visible = true
@@ -119,7 +121,8 @@ func set_state(state: GameState):
 			
 			box.reparent(world, false)
 			box.transform = viewing_parent.transform * box.get_base_viewing_transform()
-			box.set_locked()
+			box.reset()
+			box.can_unlock = true
 			
 		GameState.OBJECT:
 			assert(current_item != null)
@@ -129,14 +132,6 @@ func set_state(state: GameState):
 			
 			viewer.target = current_item
 	
-func get_area_under_screen_position(pos: Vector2, collision_mask: int = 0xFFFFFFFF) -> Area3D:
-	var ray_origin: = camera.project_ray_origin(pos)
-	var ray_normal: = camera.project_ray_normal(pos)
-	var query: = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_normal * 100.0, collision_mask)
-	query.collide_with_areas = true
-	var result: = get_world_3d().direct_space_state.intersect_ray(query)
-	return result.get("collider") as Area3D
-	
 func _process(delta: float) -> void:
 	
 	# Update state
@@ -145,7 +140,7 @@ func _process(delta: float) -> void:
 			if transition_tween != null: return
 			
 			if GameInput.has_just_tapped:
-				var area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0011) # mailbox + box
+				var area = Tools.get_area_under_screen_position(GameInput.tap_position, 0b0000_0011) # mailbox + box
 				if area != null: 
 					var hit_box: = Tools.find_parent_by_type(area, "Box") as Box
 					if hit_box != null:
@@ -186,8 +181,8 @@ func _process(delta: float) -> void:
 				viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
 			
 			if GameInput.has_just_tapped:
-				if box.current_state == Box.State.OPENED:
-					var item_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
+				if box.are_all_flaps_open():
+					var item_area = Tools.get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
 					if item_area != null:
 						var item = Tools.find_parent_by_type(item_area, "Item") as Item
 						if item == null: return
@@ -211,15 +206,6 @@ func _process(delta: float) -> void:
 							
 						transition_tween.tween_callback(on_transition_over)
 						return
-				
-				var box_area = get_area_under_screen_position(GameInput.tap_position, 0b0000_0001)
-				if box_area != null: 
-					var hit_box: = Tools.find_parent_by_type(box_area, "Box") as Box
-					if hit_box != null:
-						if hit_box.current_state == Box.State.OPENED:
-							hit_box.close()
-						elif hit_box.current_state == Box.State.UNLOCKED:
-							hit_box.open()
 							
 		GameState.OBJECT:
 			viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)

@@ -1,51 +1,138 @@
 extends Node3D
 class_name Box
 
-enum State
-{
-	NONE,
-	LOCKED,
-	UNLOCKED,
-	OPENING,
-	CLOSING,
-	OPENED
-}
-
 @export var animation_player: AnimationPlayer
 @export var content_parent: Node3D
 @export var unlock_path: Path3D
+@export var animation_tree: AnimationTree
 @export var interaction_radius: float = 0.15
 @export var tape_smooth_time: float = 0.1
+@export var box_collider: CollisionShape3D
+@export var flap_open_time: float = 1.0
+@export var flap_close_time: float = 1.0
 
 @export var viewing_base_rotation: Vector3
 @export var viewing_base_scale: Vector3 = Vector3.ONE
+
+@export var flap_l_area: Area3D
+@export var flap_r_area: Area3D
+@export var flap_f_area: Area3D
+@export var flap_b_area: Area3D
+
+var can_unlock: bool = false
+var is_unlocked: bool = false
 
 var unlocking_touch_index: int = -1
 
 var current_unlock_ratio: float = 0.0
 var target_unlock_ratio: float = 0.0
 
-var current_state: State = State.NONE
+var tape_open_animation_length: float
+
+class FlapData:
+	var open: bool
+	var tween: Tween
+	var property: String
+
+var flap_l: FlapData
+var flap_r: FlapData
+var flap_f: FlapData
+var flap_b: FlapData
+
+var tape_disable_tween: Tween
 
 func _ready():
-	animation_player.animation_finished.connect(on_animation_finished)
+	var tape_open_animation: = animation_player.get_animation(&"unlock")
+	if tape_open_animation != null:
+		tape_open_animation_length = tape_open_animation.length
+	else:
+		push_error("cant find box unlock animation")
+	
+	flap_l = FlapData.new()
+	flap_l.property = "parameters/flap_l/blend_amount"
+	flap_r = FlapData.new()
+	flap_r.property = "parameters/flap_r/blend_amount"
+	flap_f = FlapData.new()
+	flap_f.property = "parameters/flap_f/blend_amount"
+	flap_b = FlapData.new()
+	flap_b.property = "parameters/flap_b/blend_amount"
+	
+	reset()
+	
 
 func _process(dt: float):
 	
-	match current_state:
-		State.LOCKED:
-			update_tape_interaction()
+	update_tape_interaction()
 			
-			# update tape visual
-			var target: = target_unlock_ratio
-			if unlocking_touch_index >= 0:
-				target = max(target, 0.05)
-			current_unlock_ratio = Tools.time_independent_lerp(current_unlock_ratio, target, tape_smooth_time, dt)
-			animation_player.seek(animation_player.current_animation_length * current_unlock_ratio, true)
+	# update tape visual
+	var target: = target_unlock_ratio
+	if unlocking_touch_index >= 0:
+		target = max(target, 0.05)
+	current_unlock_ratio = Tools.time_independent_lerp(current_unlock_ratio, target, tape_smooth_time, dt)
+	animation_tree.set(&"parameters/tape_seek/seek_request", tape_open_animation_length * current_unlock_ratio)
+	
+	if is_unlocked:
+		if GameInput.has_just_tapped:
+			var area = Tools.get_area_under_screen_position(GameInput.tap_position, 0b0000_0001)
+			
+			match area:
+				flap_l_area:
+					if !flap_l.open && flap_f.open && flap_b.open:
+						open_flap(flap_l)
+					elif flap_f.open && flap_b.open:
+						close_flap(flap_l)
+						
+				flap_r_area:
+					if !flap_r.open && flap_f.open && flap_b.open:
+						open_flap(flap_r)
+					elif flap_f.open && flap_b.open:
+						close_flap(flap_r)
+						
+				flap_f_area:
+					if !flap_f.open:
+						open_flap(flap_f)
+					else:
+						close_flap(flap_f)
+						
+				flap_b_area:
+					if !flap_b.open:
+						open_flap(flap_b)
+					else:
+						close_flap(flap_b)
+
+func reset():
+	can_unlock = false
+	is_unlocked = false
+	current_unlock_ratio = 0.0
+	target_unlock_ratio = 0.0
+	unlocking_touch_index = -1
+	animation_tree.set(&"parameters/tape_disable/add_amount", 0.0)
+	animation_tree.set(&"parameters/tape_seek/seek_request", -1.0)
+	box_collider.disabled = false
+	
+	if tape_disable_tween != null:
+		tape_disable_tween.kill()
+		tape_disable_tween = null
+	
+	reset_flap(flap_l)
+	reset_flap(flap_r)
+	reset_flap(flap_f)
+	reset_flap(flap_b)
 
 func update_tape_interaction():
+	if is_unlocked || !can_unlock:
+		unlocking_touch_index = -1
+		return
+	
 	if unlocking_touch_index < 0 && current_unlock_ratio > 0.95:
-		set_state(State.UNLOCKED)
+		tape_disable_tween = get_tree().create_tween()
+		tape_disable_tween.tween_property(animation_tree, "parameters/tape_disable/add_amount", 1.0, 0.2)\
+			.set_trans(Tween.TRANS_CUBIC)\
+			.set_ease(Tween.EASE_IN)
+		target_unlock_ratio = 1.0
+		is_unlocked = true
+		box_collider.disabled = true
+		return
 	
 	if GameInput.touch_stack.size() == 0:
 		unlocking_touch_index = -1
@@ -72,7 +159,8 @@ func update_tape_interaction():
 	#DebugDraw3D.draw_sphere(result.result_A, 0.1)
 	
 	if unlocking_touch_index < 0:
-		var current_unlock_point: = unlock_path.global_transform * unlock_path.curve.sample_baked(current_unlock_ratio * l)
+		var offset = max(current_unlock_ratio * l, interaction_radius) # small UX tweak for initial interaction that is off visual at 0
+		var current_unlock_point: = unlock_path.global_transform * unlock_path.curve.sample_baked()
 		if touch.just_pressed && result.result_A.distance_to(current_unlock_point) <= interaction_radius:
 			unlocking_touch_index = touch.index
 	else:
@@ -84,65 +172,31 @@ func update_tape_interaction():
 		#DebugDraw3D.draw_sphere(unlock_path.global_transform * unlock_path.curve.sample_baked(path_offset), 0.1, Color.BISQUE)
 		target_unlock_ratio = path_offset / l
 
-func set_state(state: State):
-	if current_state == state: return
-	
-	match current_state:
-		State.LOCKED:
-			animation_player.speed_scale = 1.0
-			
-		_:
-			animation_player.stop(true);
-		
-	current_state = state
-	
-	match current_state:
-		State.LOCKED:
-			current_unlock_ratio = 0.0
-			target_unlock_ratio = 0.0
-			#animation_player.play(&"locked")
-			animation_player.play(&"unlock", -1, 0.0)
-			animation_player.speed_scale = 0.0
-			animation_player.seek(0);
-			
-		State.UNLOCKED:
-			animation_player.play(&"unlocked")
-			
-		State.OPENING:
-			animation_player.play(&"open", -1, 2.0)
-			
-		State.CLOSING:
-			animation_player.play(&"open", -1, -2.0, true)
-			
-		State.OPENED:
-			animation_player.play(&"opened", -1, 2.0)
-			
-		pass
-
-func set_locked():
-	set_state(State.LOCKED)
-	pass
-
-func set_unlocked():
-	set_state(State.UNLOCKED)
-	
-func set_opened():
-	set_state(State.OPENED)
-	
-func open():
-	if current_state != State.UNLOCKED: return
-	set_state(State.OPENING)
-	
-func close():
-	if current_state <= State.UNLOCKED: return
-	set_state(State.CLOSING)
-
-func on_animation_finished(anim_name: StringName):
-	match current_state:
-		State.OPENING:
-			set_state(State.OPENED)
-		State.CLOSING:
-			set_state(State.UNLOCKED)
-			
 func get_base_viewing_transform() -> Transform3D:
 	return Transform3D(Basis(Quaternion.from_euler(viewing_base_rotation)).scaled(viewing_base_scale))
+	
+func reset_flap(flap: FlapData):
+	flap.open = false
+	if flap.tween != null:
+		flap.tween.kill()
+		flap.tween = null
+	animation_tree.set(flap.property, 0.0)
+		
+func open_flap(flap: FlapData):
+	if flap.tween != null: flap.tween.kill()
+	flap.tween = get_tree().create_tween()
+	flap.tween.tween_property(animation_tree, flap.property, 1.0, flap_open_time)\
+		.set_trans(Tween.TRANS_ELASTIC)\
+		.set_ease(Tween.EASE_OUT)
+	flap.open = true
+	
+func close_flap(flap: FlapData):
+	if flap.tween != null: flap.tween.kill()
+	flap.tween = get_tree().create_tween()
+	flap.tween.tween_property(animation_tree, flap.property, 0.0, flap_close_time)\
+		.set_trans(Tween.TRANS_BACK)\
+		.set_ease(Tween.EASE_OUT)
+	flap.open = false
+	
+func are_all_flaps_open():
+	return flap_l.open && flap_r.open && flap_f.open && flap_b.open
