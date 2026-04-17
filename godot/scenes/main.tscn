@@ -18,7 +18,7 @@ drag_speed = Vector2(0.003, 0.003)
 drag_smooth = 0.15
 metadata/_custom_type_script = "uid://dmfbvrxq6u5iw"
 
-[node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "box", "camera", "viewer", "viewing_parent")]
+[node name="game" type="Node3D" parent="scripts" unique_id=1723175009 node_paths=PackedStringArray("notification_button", "permissions_button", "app_page_button", "hello_world_button", "reset_button", "text", "delay_label", "delay_slider", "world", "mailbox", "box", "viewer", "viewing_parent")]
 transform = Transform3D(0.99922216, -0.032813, 0.021871835, 0.03301667, 0.9994142, -0.009016852, -0.021563161, 0.009731951, 0.9997201, 0, 0, 0)
 script = ExtResource("1_tbgi4")
 notification_button = NodePath("../../ui/notification_button")
@@ -32,7 +32,6 @@ delay_slider = NodePath("../../ui/delay_widget/HSlider")
 world = NodePath("../../world")
 mailbox = NodePath("../../world/mailbox")
 box = NodePath("../../world/mailbox/box/content_parent/box")
-camera = NodePath("../../world/camera")
 viewer = NodePath("../viewer")
 viewing_parent = NodePath("../../world/viewing_parent")
 
@@ -70,6 +69,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="notification_button" type="Button" parent="ui" unique_id=1033478748]
+visible = false
 layout_mode = 0
 offset_left = 24.0
 offset_top = 22.0
@@ -79,6 +79,7 @@ theme = ExtResource("5_85g3d")
 text = "SEND NOTIFICATION"
 
 [node name="permissions_button" type="Button" parent="ui" unique_id=1216643286]
+visible = false
 layout_mode = 0
 offset_left = 24.0
 offset_top = 143.0
@@ -88,6 +89,7 @@ theme = ExtResource("5_85g3d")
 text = "ASK PERMISSIONS"
 
 [node name="app_page" type="Button" parent="ui" unique_id=414506203]
+visible = false
 layout_mode = 0
 offset_left = 24.0
 offset_top = 265.0
@@ -97,6 +99,7 @@ theme = ExtResource("5_85g3d")
 text = "OPEN APP PAGE"
 
 [node name="hello_world" type="Button" parent="ui" unique_id=235535162]
+visible = false
 layout_mode = 0
 offset_left = 470.0
 offset_top = 22.0
@@ -108,10 +111,10 @@ text = "HELLO WORLD
 
 [node name="reset" type="Button" parent="ui" unique_id=65483897]
 layout_mode = 0
-offset_left = 470.0
-offset_top = 143.0
-offset_right = 892.0
-offset_bottom = 243.0
+offset_left = 296.0
+offset_top = 17.0
+offset_right = 718.0
+offset_bottom = 117.0
 theme = ExtResource("5_85g3d")
 text = "RESET"
 
