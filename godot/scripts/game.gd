@@ -67,11 +67,11 @@ func _ready() -> void:
 	
 	mailbox.visible = false
 	box.visible = false
-	#set_state(GameState.MAILBOX)
 	call_deferred("late_ready")
 	
 func late_ready():
-	set_state(GameState.PARCEL)
+	set_state(GameState.MAILBOX)
+	#set_state(GameState.PARCEL)
 	
 func set_state(state: GameState):
 	if state == current_state: return
