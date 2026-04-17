@@ -76,15 +76,15 @@ func _process(dt: float):
 			
 			match area:
 				flap_l_area:
-					if !flap_l.open && flap_f.open && flap_b.open:
+					if !flap_l.open:
 						open_flap(flap_l)
-					elif flap_f.open && flap_b.open:
+					else:
 						close_flap(flap_l)
 						
 				flap_r_area:
-					if !flap_r.open && flap_f.open && flap_b.open:
+					if !flap_r.open:
 						open_flap(flap_r)
-					elif flap_f.open && flap_b.open:
+					else:
 						close_flap(flap_r)
 						
 				flap_f_area:
