@@ -12,6 +12,7 @@ extends Node3D
 
 @export var world: Node3D
 @export var mailbox: Mailbox;
+@export var gameboy: Item;
 @export var box: Box;
 @export var viewer: ObjectViewer
 @export var viewing_parent: Node3D
@@ -91,11 +92,7 @@ func set_state(state: GameState):
 				transition_tween.kill()
 				transition_tween = null
 			
-		GameState.OBJECT:
-			# hack until objects are handled generically
-			current_item.reparent(box.content_parent, false)
-			current_item.transform = Transform3D.IDENTITY
-			
+		GameState.OBJECT:	
 			current_item = null
 			viewer.target = null
 	
@@ -109,6 +106,10 @@ func set_state(state: GameState):
 			
 			mailbox.transform = mailbox_base_transform
 			
+			# hack until objects are handled generically
+			gameboy.reparent(box.content_parent, false)
+			gameboy.transform = Transform3D.IDENTITY
+			
 			box.visible = true
 			box.reparent(mailbox.content_parent, false)
 			box.transform = Transform3D.IDENTITY
@@ -118,6 +119,10 @@ func set_state(state: GameState):
 			box.visible = true
 			
 			viewer.target = box
+			
+			# hack until objects are handled generically
+			gameboy.reparent(box.content_parent, false)
+			gameboy.transform = Transform3D.IDENTITY
 			
 			box.reparent(world, false)
 			box.transform = viewing_parent.transform * box.get_base_viewing_transform()
@@ -181,8 +186,8 @@ func _process(delta: float) -> void:
 				viewer.update(delta, GameInput.is_dragging, GameInput.drag_delta)
 			
 			if GameInput.has_just_tapped:
-				if box.are_all_flaps_open():
-					var item_area = Tools.get_area_under_screen_position(GameInput.tap_position, 0b0000_0100)
+				if true:
+					var item_area = Tools.get_area_under_screen_position(GameInput.tap_position, 0b0000_0101)
 					if item_area != null:
 						var item = Tools.find_parent_by_type(item_area, "Item") as Item
 						if item == null: return

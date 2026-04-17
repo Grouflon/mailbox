@@ -5,7 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://bj0a6w6yln2jn" path="res://scenes/gameboy.tscn" id="3_c2ln5"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ks2v0"]
-size = Vector3(2.1660156, 1.7539291, 3.008789)
+size = Vector3(2.1660156, 0.087524414, 2.8447266)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dijgj"]
+size = Vector3(2.1123047, 1.5640869, 0.14428711)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_faous"]
+size = Vector3(0.15209961, 1.5640869, 2.8200684)
 
 [sub_resource type="Curve3D" id="Curve3D_c2ln5"]
 _data = {
@@ -108,14 +114,13 @@ size = Vector3(0.12878418, 0.96876526, 2.8515625)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ry43h"]
 size = Vector3(0.12561035, 0.98654175, 2.8173828)
 
-[node name="box" unique_id=1009196777 node_paths=PackedStringArray("animation_player", "content_parent", "unlock_path", "animation_tree", "box_collider", "flap_l_area", "flap_r_area", "flap_f_area", "flap_b_area") instance=ExtResource("1_3inec")]
+[node name="box" unique_id=1009196777 node_paths=PackedStringArray("animation_player", "content_parent", "unlock_path", "animation_tree", "flap_l_area", "flap_r_area", "flap_f_area", "flap_b_area") instance=ExtResource("1_3inec")]
 script = ExtResource("2_ks2v0")
 animation_player = NodePath("AnimationPlayer")
 content_parent = NodePath("content_parent")
 unlock_path = NodePath("unlock_path")
 animation_tree = NodePath("AnimationTree")
-interaction_radius = 0.2
-box_collider = NodePath("area/box_collider")
+interaction_radius = 0.4
 flap_open_time = 2.0
 flap_close_time = 0.7
 viewing_base_rotation = Vector3(-0.3493217, -2.2551017, -0.3959507)
@@ -125,21 +130,49 @@ flap_r_area = NodePath("flap_r_attachment/flap_r_area")
 flap_f_area = NodePath("flap_f_attachment/flap_f_area")
 flap_b_area = NodePath("flap_b_attachment/flap_b_area")
 
-[node name="area" type="Area3D" parent="." index="0" unique_id=1576720459]
+[node name="box_sides_area" type="Area3D" parent="." index="0" unique_id=1576720459]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022211075, 0, 0)
 input_ray_pickable = false
 
-[node name="box_collider" type="CollisionShape3D" parent="area" index="0" unique_id=80903983]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.10267258, 0)
+[node name="box_floor" type="CollisionShape3D" parent="box_sides_area" index="0" unique_id=80903983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.71243584, -0.012900591)
 shape = SubResource("BoxShape3D_ks2v0")
+
+[node name="box_side_l" type="CollisionShape3D" parent="box_sides_area" index="1" unique_id=1584899899]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.030418634, 0.03387451, -1.3735428)
+shape = SubResource("BoxShape3D_dijgj")
+
+[node name="box_side_r" type="CollisionShape3D" parent="box_sides_area" index="2" unique_id=689589687]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.030418634, 0.03387451, 1.3381047)
+shape = SubResource("BoxShape3D_dijgj")
+
+[node name="box_side_f" type="CollisionShape3D" parent="box_sides_area" index="3" unique_id=47873357]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0143056, 0.027650356, 0)
+shape = SubResource("BoxShape3D_faous")
+
+[node name="box_side_b" type="CollisionShape3D" parent="box_sides_area" index="4" unique_id=2092443448]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9443761, 0.027650356, 0)
+shape = SubResource("BoxShape3D_faous")
 
 [node name="Skeleton3D" parent="box" parent_id_path=PackedInt32Array(1852968673) index="0" unique_id=577330285]
 bones/1/rotation = Quaternion(0.7071066, 2.0097178e-14, 1.6858729e-07, 0.70710695)
-bones/2/rotation = Quaternion(-0.7071066, 2.5121473e-14, -1.6858745e-07, 0.70710695)
+bones/2/rotation = Quaternion(-0.7062113, 2.5118796e-14, -1.68374e-07, 0.70800114)
 bones/3/rotation = Quaternion(2.9502792e-07, 4.2146862e-08, -0.70710665, 0.7071069)
 bones/4/rotation = Quaternion(-4.214682e-08, -4.214683e-08, 0.70710665, 0.7071069)
 bones/5/rotation = Quaternion(-0.7071068, 8.42937e-08, -8.42937e-08, 0.7071068)
+bones/5/scale = Vector3(2, 2, 2)
+bones/6/scale = Vector3(2, 2, 2)
+bones/7/scale = Vector3(2, 2, 2)
+bones/8/scale = Vector3(2, 2, 2)
+bones/9/scale = Vector3(2, 2, 2)
+bones/10/scale = Vector3(2, 2, 2)
+bones/11/scale = Vector3(2, 2, 2)
+bones/12/scale = Vector3(2, 2, 2)
+bones/13/scale = Vector3(2, 2, 2)
 bones/14/rotation = Quaternion(-0.7071068, 4.7915422e-21, 4.7915422e-21, 0.7071068)
+bones/14/scale = Vector3(2, 2, 2)
+bones/15/scale = Vector3(2, 2, 2)
+bones/16/scale = Vector3(2, 2, 2)
 
 [node name="content_parent" type="Marker3D" parent="." index="3" unique_id=846267319]
 transform = Transform3D(-0.3564026, -0.18159623, -7.937824e-09, 0, -1.7484556e-08, 0.4, -0.18159623, 0.3564026, 1.5578852e-08, 0, -0.54047656, 0)
@@ -154,16 +187,16 @@ curve = SubResource("Curve3D_c2ln5")
 tree_root = SubResource("AnimationNodeBlendTree_ry43h")
 anim_player = NodePath("../AnimationPlayer")
 parameters/flap_l/blend_amount = 0.0
-parameters/flap_b/blend_amount = 0.0
-parameters/flap_f/blend_amount = 0.0
+parameters/flap_b/blend_amount = 2.2916667
+parameters/flap_f/blend_amount = 0.001
 parameters/flap_r/blend_amount = 0.0
 parameters/tape_seek/seek_request = -1.0
 parameters/tape/add_amount = 1.0
 parameters/tape_scale/scale = 0.0
-parameters/tape_disable/add_amount = 0.0
+parameters/tape_disable/add_amount = 1.0
 
 [node name="flap_l_attachment" type="BoneAttachment3D" parent="." index="6" unique_id=1291339872]
-transform = Transform3D(1, 1.4210855e-14, 2.3841852e-07, -1.9530106e-07, 0.5735761, 0.81915224, -1.3675118e-07, -0.81915224, 0.5735761, 0, 0.7282367, -1.3276107)
+transform = Transform3D(1, 5.684342e-14, 2.3841852e-07, 2.3841851e-07, 5.960464e-07, -0.9999999, -2.4158453e-13, 0.9999999, 5.9604633e-07, 2.842171e-14, 0.7282367, -1.3276107)
 bone_name = "flap.l"
 bone_idx = 1
 use_external_skeleton = true
@@ -177,7 +210,7 @@ transform = Transform3D(1, -7.1054274e-15, -1.0444978e-12, 7.1054274e-15, 1, -2.
 shape = SubResource("BoxShape3D_c2ln5")
 
 [node name="flap_r_attachment" type="BoneAttachment3D" parent="." index="7" unique_id=835983719]
-transform = Transform3D(1, 1.7053026e-13, 2.3841872e-07, -2.3841872e-07, 4.768371e-07, 0.9999999, 0, -0.9999999, 4.7683704e-07, -2.842171e-14, 0.72823656, 1.3276107)
+transform = Transform3D(1, 1.563194e-13, 2.3841875e-07, -2.3841797e-07, 0.0025310514, 0.9999968, -6.0333605e-10, -0.9999968, 0.0025310514, -2.842171e-14, 0.72823656, 1.3276107)
 bone_name = "flap.r"
 bone_idx = 2
 use_external_skeleton = true
@@ -191,7 +224,7 @@ transform = Transform3D(1, 0, -9.826806e-12, -2.1316282e-14, 1, 0, 7.2120088e-12
 shape = SubResource("BoxShape3D_brpd5")
 
 [node name="flap_f_attachment" type="BoneAttachment3D" parent="." index="8" unique_id=1453285383]
-transform = Transform3D(0.5735762, -0.81915224, 3.027775e-07, 0.8191522, 0.57357615, 2.8418066e-07, -4.0645318e-07, 8.502162e-08, 0.99999994, -0.925918, 0.7946934, -4.7367422e-08)
+transform = Transform3D(3.5762775e-07, 0.99999994, -1.1920919e-07, -0.9999999, 3.5762787e-07, -4.172325e-07, -4.1723249e-07, 1.1920932e-07, 0.99999994, -0.925918, 0.7946934, -4.7367422e-08)
 bone_name = "flap.f"
 bone_idx = 3
 use_external_skeleton = true

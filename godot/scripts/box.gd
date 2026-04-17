@@ -7,7 +7,6 @@ class_name Box
 @export var animation_tree: AnimationTree
 @export var interaction_radius: float = 0.15
 @export var tape_smooth_time: float = 0.1
-@export var box_collider: CollisionShape3D
 @export var flap_open_time: float = 1.0
 @export var flap_close_time: float = 1.0
 
@@ -108,7 +107,6 @@ func reset():
 	unlocking_touch_index = -1
 	animation_tree.set(&"parameters/tape_disable/add_amount", 0.0)
 	animation_tree.set(&"parameters/tape_seek/seek_request", -1.0)
-	box_collider.disabled = false
 	
 	if tape_disable_tween != null:
 		tape_disable_tween.kill()
@@ -131,7 +129,6 @@ func update_tape_interaction():
 			.set_ease(Tween.EASE_IN)
 		target_unlock_ratio = 1.0
 		is_unlocked = true
-		box_collider.disabled = true
 		return
 	
 	if GameInput.touch_stack.size() == 0:
